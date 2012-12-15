@@ -35,6 +35,7 @@
 #include "Chrome.h"
 #include "CreateLinkCommand.h"
 #include "DocumentFragment.h"
+#include "DOMSelection.h"
 #include "EditorClient.h"
 #include "Event.h"
 #include "EventHandler.h"
@@ -1085,6 +1086,29 @@ static bool executeToggleBold(Frame* frame, Event*, EditorCommandSource source, 
     return executeToggleStyle(frame, source, EditActionChangeAttributes, CSSPropertyFontWeight, "normal", "bold");
 }
 
+static bool executeCheckSpelling(Frame* frame, Event*, EditorCommandSource source, const String&)
+{
+	Document* document = frame->document();
+	DOMSelection* selection = document->getSelection();
+	Node* node = selection->anchorNode();
+	Node* root = node;
+	while (node && node != document->body()) {
+		if (node->parentElement()->getAttribute("contenteditable") != nullAtom) {
+			root = node->parentNode();
+		}
+		node = node->parentNode();
+	}
+	
+	if (root->childNodeCount() == 0) {
+		return false;
+	}
+
+	VisibleSelection s(firstPositionInOrBeforeNode(root), lastPositionInOrAfterNode(root));
+	frame->editor()->markMisspellingsAndBadGrammar(s, false, s);
+	
+    return true;
+}
+
 static bool executeToggleItalic(Frame* frame, Event*, EditorCommandSource source, const String&)
 {
     return executeToggleStyle(frame, source, EditActionChangeAttributes, CSSPropertyFontStyle, "normal", "italic");
@@ -1449,6 +1473,7 @@ static const CommandMap& createCommandMap()
         { "BackColor", { executeBackColor, supported, enabledInRichlyEditableText, stateNone, valueBackColor, notTextInsertion, doNotAllowExecutionWhenDisabled } },
         { "BackwardDelete", { executeDeleteBackward, supportedFromMenuOrKeyBinding, enabledInEditableText, stateNone, valueNull, notTextInsertion, doNotAllowExecutionWhenDisabled } }, // FIXME: remove BackwardDelete when Safari for Windows stops using it.
         { "Bold", { executeToggleBold, supported, enabledInRichlyEditableText, stateBold, valueNull, notTextInsertion, doNotAllowExecutionWhenDisabled } },
+		{ "CheckSpelling", { executeCheckSpelling, supported, enabledInRichlyEditableText, stateNone, valueNull, notTextInsertion, doNotAllowExecutionWhenDisabled } },
         { "Copy", { executeCopy, supportedCopyCut, enabledCopy, stateNone, valueNull, notTextInsertion, allowExecutionWhenDisabled } },
         { "CreateLink", { executeCreateLink, supported, enabledInRichlyEditableText, stateNone, valueNull, notTextInsertion, doNotAllowExecutionWhenDisabled } },
         { "Cut", { executeCut, supportedCopyCut, enabledCut, stateNone, valueNull, notTextInsertion, allowExecutionWhenDisabled } },
