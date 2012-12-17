@@ -35,7 +35,6 @@
 #include "Chrome.h"
 #include "CreateLinkCommand.h"
 #include "DocumentFragment.h"
-#include "DOMSelection.h"
 #include "EditorClient.h"
 #include "Event.h"
 #include "EventHandler.h"
