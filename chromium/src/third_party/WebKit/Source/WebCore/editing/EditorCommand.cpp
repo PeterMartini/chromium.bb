@@ -55,6 +55,7 @@
 #include "Scrollbar.h"
 #include "Settings.h"
 #include "Sound.h"
+#include "SpellChecker.h"
 #include "StylePropertySet.h"
 #include "TypingCommand.h"
 #include "UnlinkCommand.h"
@@ -1088,24 +1089,11 @@ static bool executeToggleBold(Frame* frame, Event*, EditorCommandSource source, 
 
 static bool executeCheckSpelling(Frame* frame, Event*, EditorCommandSource source, const String&)
 {
-	Document* document = frame->document();
-	DOMSelection* selection = document->getSelection();
-	Node* node = selection->anchorNode();
-	Node* root = node;
-	while (node && node != document->body()) {
-		if (node->parentElement()->getAttribute("contenteditable") != nullAtom) {
-			root = node->parentNode();
-		}
-		node = node->parentNode();
-	}
-	
-	if (root->childNodeCount() == 0) {
-		return false;
-	}
-
-	VisibleSelection s(firstPositionInOrBeforeNode(root), lastPositionInOrAfterNode(root));
-	frame->editor()->markMisspellingsAndBadGrammar(s, false, s);
-	
+    Element* e = frame->selection()->rootEditableElement();
+    if (e && e->isSpellCheckingEnabled()) {
+        VisibleSelection s(firstPositionInOrBeforeNode(e), lastPositionInOrAfterNode(e));
+        frame->editor()->markMisspellingsAndBadGrammar(s, false, s);
+    }
     return true;
 }
 
