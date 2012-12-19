@@ -272,6 +272,7 @@ void WebPreferences::Apply(WebView* web_view) const {
   settings->setFrameFlatteningEnabled(frame_flattening_enabled);
 
   settings->setFontRenderingModeNormal();
+  settings->setFontSmoothingMode(WebSettings::AutoSmoothing);
   settings->setJavaEnabled(java_enabled);
 
   // By default, allow_universal_access_from_file_urls is set to false and thus

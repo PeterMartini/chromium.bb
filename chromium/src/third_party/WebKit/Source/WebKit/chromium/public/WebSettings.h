@@ -53,6 +53,13 @@ public:
         EditingBehaviorUnix
     };
 
+    enum FontSmoothingMode {
+        AutoSmoothing,
+        NoSmoothing,
+        Antialiased,
+        SubpixelAntialiased
+    };
+
     virtual bool scrollAnimatorEnabled() const = 0;
     virtual bool viewportEnabled() const = 0;
     virtual void setAccelerated2dCanvasEnabled(bool) = 0;
@@ -102,6 +109,7 @@ public:
     virtual void setFixedFontFamily(const WebString&, UScriptCode = USCRIPT_COMMON) = 0;
     virtual void setFixedPositionCreatesStackingContext(bool) = 0;
     virtual void setFontRenderingModeNormal() = 0;
+    virtual void setFontSmoothingMode(FontSmoothingMode mode) = 0;
     virtual void setForceCompositingMode(bool) = 0;
     virtual void setFrameFlatteningEnabled(bool) = 0;
     virtual void setFullScreenEnabled(bool) = 0;

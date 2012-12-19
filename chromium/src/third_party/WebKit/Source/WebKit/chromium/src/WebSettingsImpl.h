@@ -94,6 +94,7 @@ public:
     virtual void setFixedFontFamily(const WebString&, UScriptCode = USCRIPT_COMMON);
     virtual void setFixedPositionCreatesStackingContext(bool);
     virtual void setFontRenderingModeNormal();
+    virtual void setFontSmoothingMode(FontSmoothingMode mode);
     virtual void setForceCompositingMode(bool);
     virtual void setFrameFlatteningEnabled(bool);
     virtual void setFullScreenEnabled(bool);

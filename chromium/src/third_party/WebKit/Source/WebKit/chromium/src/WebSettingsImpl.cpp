@@ -304,6 +304,11 @@ void WebSettingsImpl::setFontRenderingModeNormal()
     m_settings->setFontRenderingMode(WebCore::NormalRenderingMode);
 }
 
+void WebSettingsImpl::setFontSmoothingMode(FontSmoothingMode mode)
+{
+    m_settings->setFontSmoothing((WebCore::FontSmoothingMode)mode);
+}
+
 void WebSettingsImpl::setAllowUniversalAccessFromFileURLs(bool allow)
 {
     m_settings->setAllowUniversalAccessFromFileURLs(allow);

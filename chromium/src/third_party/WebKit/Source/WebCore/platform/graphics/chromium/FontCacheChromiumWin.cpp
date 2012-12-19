@@ -355,7 +355,29 @@ static void FillLogFont(const FontDescription& fontDescription, LOGFONT* winfont
     winfont->lfStrikeOut = false;
     winfont->lfCharSet = DEFAULT_CHARSET;
     winfont->lfOutPrecision = OUT_TT_ONLY_PRECIS;
-    winfont->lfQuality = isRunningLayoutTest() ? NONANTIALIASED_QUALITY : DEFAULT_QUALITY; // Honor user's desktop settings.
+
+    if (isRunningLayoutTest()) {
+        winfont->lfQuality = NONANTIALIASED_QUALITY;
+    }
+    else {
+        switch (fontDescription.fontSmoothing()) {
+        case NoSmoothing:
+            winfont->lfQuality = NONANTIALIASED_QUALITY;
+            break;
+        case Antialiased:
+            winfont->lfQuality = ANTIALIASED_QUALITY;
+            break;
+        case SubpixelAntialiased:
+            winfont->lfQuality = CLEARTYPE_QUALITY;
+            break;
+        case AutoSmoothing:
+        default:
+            // Honor user's desktop settings.
+            winfont->lfQuality = DEFAULT_QUALITY;
+            break;
+        }
+    }
+
     winfont->lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
     winfont->lfItalic = fontDescription.italic();
     winfont->lfWeight = toGDIFontWeight(fontDescription.weight());
