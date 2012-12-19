@@ -252,13 +252,6 @@ static void paintSkBitmap(PlatformContextSkia* platformContext, const NativeImag
         resampling = computeResamplingMode(canvas->getTotalMatrix(), bitmap, srcRect.width(), srcRect.height(),
                                            SkScalarToFloat(destRectTarget.width()), SkScalarToFloat(destRectTarget.height()));
     }
-
-    if (resampling == RESAMPLE_NONE) {
-      // FIXME: This is to not break tests (it results in the filter bitmap flag
-      // being set to true). We need to decide if we respect RESAMPLE_NONE
-      // being returned from computeResamplingMode.
-        resampling = RESAMPLE_LINEAR;
-    }
     resampling = limitResamplingMode(platformContext, resampling);
     paint.setFilterBitmap(resampling == RESAMPLE_LINEAR);
     if (resampling == RESAMPLE_AWESOME)
