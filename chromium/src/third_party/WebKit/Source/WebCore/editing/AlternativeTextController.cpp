@@ -92,7 +92,9 @@ static const Vector<DocumentMarker::MarkerType>& markerTypesForAutocorrection()
     DEFINE_STATIC_LOCAL(Vector<DocumentMarker::MarkerType>, markerTypesForAutoCorrection, ());
     if (markerTypesForAutoCorrection.isEmpty()) {
         markerTypesForAutoCorrection.append(DocumentMarker::Replacement);
+#if !(defined(BLOOMBERG_TEXT_CHECKING) && BLOOMBERG_TEXT_CHECKING)
         markerTypesForAutoCorrection.append(DocumentMarker::CorrectionIndicator);
+#endif
         markerTypesForAutoCorrection.append(DocumentMarker::SpellCheckingExemption);
         markerTypesForAutoCorrection.append(DocumentMarker::Autocorrected);
     }

@@ -115,6 +115,22 @@ public:
     virtual void requestCheckingOfString(WTF::PassRefPtr<WebCore::TextCheckingRequest>);
     virtual bool supportsGlobalSelection() OVERRIDE;
 
+#if defined(BLOOMBERG_TEXT_CHECKING) && BLOOMBERG_TEXT_CHECKING
+    virtual void showSubstitutionsPanel(bool) { }
+    virtual bool substitutionsPanelIsShowing() { return false; }
+    virtual void toggleSmartInsertDelete() { }
+    virtual bool isAutomaticQuoteSubstitutionEnabled() { return false; }
+    virtual void toggleAutomaticQuoteSubstitution() { }
+    virtual bool isAutomaticLinkDetectionEnabled() { return false; }
+    virtual void toggleAutomaticLinkDetection() { }
+    virtual bool isAutomaticDashSubstitutionEnabled() { return false; }
+    virtual void toggleAutomaticDashSubstitution() { }
+    virtual bool isAutomaticTextReplacementEnabled() { return true; }
+    virtual void toggleAutomaticTextReplacement() { }
+    virtual bool isAutomaticSpellingCorrectionEnabled() { return false; }
+    virtual void toggleAutomaticSpellingCorrection() { }
+#endif
+
     virtual WebCore::TextCheckerClient* textChecker() { return this; }
 
 private:
