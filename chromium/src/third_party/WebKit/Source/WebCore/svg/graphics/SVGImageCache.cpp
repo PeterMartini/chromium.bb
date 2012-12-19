@@ -130,6 +130,9 @@ void SVGImageCache::redrawTimerFired(Timer<SVGImageCache>*)
        redraw();
 }
 
+extern FloatSize shezGetContainerScaleWithTransform(const RenderObject* renderer,
+                                                    const SVGImageCache::SizeAndScales& sizeAndScales);
+
 Image* SVGImageCache::lookupOrCreateBitmapImageForRenderer(const RenderObject* renderer)
 {
     if (!renderer)
@@ -144,13 +147,7 @@ Image* SVGImageCache::lookupOrCreateBitmapImageForRenderer(const RenderObject* r
 
     IntSize size = sizeIt->second.size;
     float zoom = sizeIt->second.zoom;
-    float scale = sizeIt->second.scale;
-
-    // FIXME (85335): This needs to take CSS transform scale into account as well.
-    Page* page = renderer->document()->page();
-    if (!scale)
-        scale = page->deviceScaleFactor() * page->pageScaleFactor();
-
+    FloatSize scale = shezGetContainerScaleWithTransform(renderer, sizeIt->second);
     ASSERT(!size.isEmpty());
 
     // Lookup image for client in cache and eventually update it.
@@ -168,7 +165,7 @@ Image* SVGImageCache::lookupOrCreateBitmapImageForRenderer(const RenderObject* r
     }
 
     FloatSize scaledSize(size);
-    scaledSize.scale(scale);
+    scaledSize.scale(scale.width(), scale.height());
 
     // Create and cache new image and image buffer at requested size.
     OwnPtr<ImageBuffer> newBuffer = ImageBuffer::create(expandedIntSize(scaledSize), 1);
