@@ -336,7 +336,9 @@ void TypingCommand::typingAddedToOpenCommand(ETypingCommand commandTypeForAddedT
 
     updatePreservesTypingStyle(commandTypeForAddedTyping);
 
-#if PLATFORM(MAC)
+#define BLOOMBERG_AUTOCORRECT_FIX 1
+
+#if PLATFORM(MAC) || BLOOMBERG_AUTOCORRECT_FIX
     frame->editor()->appliedEditing(this);
     // Since the spellchecking code may also perform corrections and other replacements, it should happen after the typing changes.
     if (!m_shouldPreventSpellChecking)
