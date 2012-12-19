@@ -35,6 +35,7 @@ RenderSVGHiddenContainer::RenderSVGHiddenContainer(SVGStyledElement* element)
 void RenderSVGHiddenContainer::layout()
 {
     ASSERT(needsLayout());
+    LayoutTimeStampScope timestampScope(this);
     SVGRenderSupport::layoutChildren(this, selfNeedsLayout()); 
     setNeedsLayout(false);    
 }

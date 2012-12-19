@@ -1303,7 +1303,9 @@ void RenderListMarker::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffse
 void RenderListMarker::layout()
 {
     ASSERT(needsLayout());
- 
+
+    LayoutTimeStampScope timestampScope(this);
+
     if (isImage()) {
         setWidth(m_image->imageSize(this, style()->effectiveZoom()).width());
         setHeight(m_image->imageSize(this, style()->effectiveZoom()).height());

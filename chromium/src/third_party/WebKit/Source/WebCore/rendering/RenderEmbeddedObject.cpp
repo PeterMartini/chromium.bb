@@ -229,6 +229,8 @@ bool RenderEmbeddedObject::getReplacementTextGeometry(const LayoutPoint& accumul
 void RenderEmbeddedObject::layout()
 {
     ASSERT(needsLayout());
+    
+    LayoutTimeStampScope timestampScope(this);
 
     updateLogicalWidth();
     updateLogicalHeight();

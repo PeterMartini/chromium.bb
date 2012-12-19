@@ -1494,6 +1494,8 @@ void RenderBlock::layoutBlock(bool relayoutChildren, LayoutUnit pageLogicalHeigh
     if (!relayoutChildren && simplifiedLayout())
         return;
 
+    LayoutTimeStampScope timestampScope(this);
+
     LayoutRepainter repainter(*this, checkForRepaintDuringLayout());
 
     if (updateLogicalWidthAndColumnWidth())

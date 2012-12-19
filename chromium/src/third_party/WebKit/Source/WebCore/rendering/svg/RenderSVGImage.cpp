@@ -80,6 +80,7 @@ bool RenderSVGImage::updateImageViewport()
 void RenderSVGImage::layout()
 {
     ASSERT(needsLayout());
+    LayoutTimeStampScope timestampScope(this);
 
     LayoutRepainter repainter(*this, checkForRepaintDuringLayout() && selfNeedsLayout());
     updateImageViewport();

@@ -139,6 +139,8 @@ void RenderTableRow::layout()
 {
     ASSERT(needsLayout());
 
+    LayoutTimeStampScope timestampScope(this);
+
     // Table rows do not add translation.
     LayoutStateMaintainer statePusher(view(), this, LayoutSize(), style()->isFlippedBlocksWritingMode());
 

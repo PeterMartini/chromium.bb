@@ -188,6 +188,7 @@ void RenderIFrame::layoutSeamlessly()
 void RenderIFrame::layout()
 {
     ASSERT(needsLayout());
+    LayoutTimeStampScope timestampScope(this);
 
     if (flattenFrame()) {
         RenderPart::updateLogicalWidth();

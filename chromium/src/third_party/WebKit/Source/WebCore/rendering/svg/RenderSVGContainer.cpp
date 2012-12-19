@@ -55,6 +55,7 @@ void RenderSVGContainer::layout()
 
     // RenderSVGRoot disables layoutState for the SVG rendering tree.
     ASSERT(!view()->layoutStateEnabled());
+    LayoutTimeStampScope timestampScope(this);
 
     LayoutRepainter repainter(*this, checkForRepaintDuringLayout() || selfWillPaint());
 
