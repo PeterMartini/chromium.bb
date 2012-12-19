@@ -77,28 +77,6 @@ private:
     LayoutRect m_rect; // relative to repaint container
 };
 
-
-// This struct is used when the selection changes to cache the old and new state of the selection for each RenderBlock.
-class RenderBlockSelectionInfo : public RenderSelectionInfoBase {
-public:
-    RenderBlockSelectionInfo(RenderBlock* b)
-        : RenderSelectionInfoBase(b)
-        , m_rects(b->canUpdateSelectionOnRootLineBoxes() ? block()->selectionGapRectsForRepaint(m_repaintContainer) : GapRects())
-    { 
-    }
-
-    void repaint()
-    {
-        m_object->repaintUsingContainer(m_repaintContainer, enclosingIntRect(m_rects));
-    }
-    
-    RenderBlock* block() const { return toRenderBlock(m_object); }
-    GapRects rects() const { return m_rects; }
-
-private:
-    GapRects m_rects; // relative to repaint container
-};
-
 } // namespace WebCore
 
 

@@ -3222,6 +3222,16 @@ void RenderBlock::paintContinuationOutlines(PaintInfo& info, const LayoutPoint& 
     table->remove(this);
 }
 
+LayoutRect RenderBlock::selectionRectForRepaint(RenderBoxModelObject* repaintContainer, bool clipToVisibleContent)
+{
+	LayoutRect rect = selectionGapRectsForRepaint(repaintContainer);
+	if (clipToVisibleContent)
+		computeRectForRepaint(repaintContainer, rect);
+	else
+		rect = localToContainerQuad(FloatRect(rect), repaintContainer).enclosingBoundingBox();
+	return rect;
+}
+
 bool RenderBlock::shouldPaintSelectionGaps() const
 {
     return selectionState() != SelectionNone && style()->visibility() == VISIBLE && isSelectionRoot();
@@ -3259,10 +3269,7 @@ GapRects RenderBlock::selectionGapRectsForRepaint(RenderBoxModelObject* repaintC
     if (!shouldPaintSelectionGaps())
         return GapRects();
 
-    // FIXME: this is broken with transforms
-    TransformState transformState(TransformState::ApplyTransformDirection, FloatPoint());
-    mapLocalToContainer(repaintContainer, transformState);
-    LayoutPoint offsetFromRepaintContainer = roundedLayoutPoint(transformState.mappedPoint());
+    LayoutPoint offsetFromRepaintContainer;
 
     if (hasOverflowClip())
         offsetFromRepaintContainer -= scrolledContentOffset();
