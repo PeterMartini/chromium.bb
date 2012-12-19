@@ -59,6 +59,7 @@ CachedImage::CachedImage(const ResourceRequest& resourceRequest)
     : CachedResource(resourceRequest, ImageResource)
     , m_image(0)
     , m_shouldPaintBrokenImage(true)
+    , m_shouldCancelLoadingWithoutClients(false)
 {
     setStatus(Unknown);
 }
@@ -67,6 +68,7 @@ CachedImage::CachedImage(Image* image)
     : CachedResource(ResourceRequest(), ImageResource)
     , m_image(image)
     , m_shouldPaintBrokenImage(true)
+    , m_shouldCancelLoadingWithoutClients(false)
 {
     setStatus(Cached);
     setLoading(false);

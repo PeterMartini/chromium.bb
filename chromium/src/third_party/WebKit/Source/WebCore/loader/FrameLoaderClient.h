@@ -75,6 +75,7 @@ namespace WebCore {
     class HTMLAppletElement;
     class HTMLFormElement;
     class HTMLFrameOwnerElement;
+    class HTMLImageElement;
 #if ENABLE(PLUGIN_PROXY_FOR_VIDEO)
     class HTMLMediaElement;
 #endif
@@ -343,6 +344,9 @@ namespace WebCore {
         virtual void dispatchWillDisconnectDOMWindowExtensionFromGlobalObject(DOMWindowExtension*) { }
         virtual void dispatchDidReconnectDOMWindowExtensionToGlobalObject(DOMWindowExtension*) { }
         virtual void dispatchWillDestroyGlobalObjectForDOMWindowExtension(DOMWindowExtension*) { }
+
+        virtual void registerImgElement(HTMLImageElement*) { }
+        virtual void unregisterImgElement(HTMLImageElement*) { }
     };
 
 } // namespace WebCore

@@ -234,11 +234,19 @@ Node::InsertionNotificationRequest HTMLImageElement::insertedInto(ContainerNode*
     if (insertionPoint->inDocument() && !m_imageLoader.image())
         m_imageLoader.updateFromElement();
 
+    if (document()) {
+        document()->registerImgElement(this);
+    }
+
     return HTMLElement::insertedInto(insertionPoint);
 }
 
 void HTMLImageElement::removedFrom(ContainerNode* insertionPoint)
 {
+    if (document()) {
+        document()->unregisterImgElement(this);
+    }
+
     if (m_form)
         m_form->removeImgElement(this);
     m_form = 0;

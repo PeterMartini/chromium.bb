@@ -55,6 +55,7 @@ class WebDataSource;
 class WebDOMEvent;
 class WebFormElement;
 class WebFrame;
+class WebElement;
 class WebIntent;
 class WebIntentRequest;
 class WebIntentServiceInfo;
@@ -421,6 +422,11 @@ public:
     // URL. Non-empty strings indicate an override should be used. Otherwise,
     // WebKitPlatformSupport::userAgent() will be called to provide one.
     virtual WebString userAgentOverride(WebFrame*, const WebURL& url) { return WebString(); }
+
+    // Image elements registration
+
+    virtual void registerImgElement(WebElement*) { }
+    virtual void unregisterImgElement(WebElement*) { }
 
 protected:
     ~WebFrameClient() { }

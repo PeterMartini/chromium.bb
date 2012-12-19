@@ -218,6 +218,9 @@ public:
 
     virtual void dispatchWillOpenSocketStream(WebCore::SocketStreamHandle*) OVERRIDE;
 
+    virtual void registerImgElement(WebCore::HTMLImageElement*) OVERRIDE;
+    virtual void unregisterImgElement(WebCore::HTMLImageElement*) OVERRIDE;
+
 private:
     void makeDocumentView();
 
