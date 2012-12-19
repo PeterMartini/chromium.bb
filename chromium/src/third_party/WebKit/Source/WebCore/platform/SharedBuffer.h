@@ -95,7 +95,10 @@ public:
 
     PassRefPtr<SharedBuffer> copy() const;
     
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasPurgeableBuffer() const { return m_purgeableBuffer.get(); }
+#pragma warning(pop)
 
     // Ensure this buffer has no other clients before calling this.
     PassOwnPtr<PurgeableBuffer> releasePurgeableBuffer();

@@ -1260,7 +1260,10 @@ int RenderStyle::computedLineHeight(RenderView* renderView) const
     if (lh.isViewportPercentage())
         return valueForLength(lh, 0, renderView);
 
+#pragma warning(push)
+#pragma warning(disable:4244)
     return lh.value();
+#pragma warning(pop)
 }
 
 void RenderStyle::setWordSpacing(int v) { inherited.access()->font.setWordSpacing(v); }

@@ -106,7 +106,10 @@ private:
 inline bool TimerBase::isActive() const
 {
     ASSERT(m_thread == currentThread());
+#pragma warning(push)
+#pragma warning(disable:4800)
     return m_nextFireTime;
+#pragma warning(pop)
 }
 
 template <typename TimerFiredClass> class DeferrableOneShotTimer : private TimerBase {

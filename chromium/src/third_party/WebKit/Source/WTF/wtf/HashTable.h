@@ -996,7 +996,10 @@ namespace WTF {
         if (!m_table)
             return false;
 
+#pragma warning(push)
+#pragma warning(disable:4800)
         return const_cast<HashTable*>(this)->lookup<HashTranslator>(key);
+#pragma warning(pop)
     }
 
     template<typename Key, typename Value, typename Extractor, typename HashFunctions, typename Traits, typename KeyTraits>

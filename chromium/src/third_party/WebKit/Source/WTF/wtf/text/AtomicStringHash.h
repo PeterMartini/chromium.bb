@@ -51,7 +51,10 @@ namespace WTF {
     // AtomicStringHash is the default hash for AtomicString
     template<> struct HashTraits<WTF::AtomicString> : GenericHashTraits<WTF::AtomicString> {
         static const bool emptyValueIsZero = true;
+#pragma warning(push)
+#pragma warning(disable:4291)
         static void constructDeletedValue(WTF::AtomicString& slot) { new (NotNull, &slot) WTF::AtomicString(HashTableDeletedValue); }
+#pragma warning(pop)
         static bool isDeletedValue(const WTF::AtomicString& slot) { return slot.isHashTableDeletedValue(); }
     };
 

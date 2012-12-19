@@ -182,7 +182,10 @@ CString fileSystemRepresentation(const String&);
 inline bool isHandleValid(const PlatformFileHandle& handle) { return handle != invalidPlatformFileHandle; }
 
 inline double invalidFileTime() { return std::numeric_limits<double>::quiet_NaN(); }
+#pragma warning(push)
+#pragma warning(disable:4800)
 inline bool isValidFileTime(double time) { return isfinite(time); }
+#pragma warning(pop)
 
 // Prefix is what the filename should be prefixed with, not the full path.
 String openTemporaryFile(const String& prefix, PlatformFileHandle&);

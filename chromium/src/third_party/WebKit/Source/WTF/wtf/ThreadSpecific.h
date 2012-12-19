@@ -256,7 +256,10 @@ inline ThreadSpecific<T>::operator T*()
         // needs to access the value, to avoid recursion.
         ptr = static_cast<T*>(fastZeroedMalloc(sizeof(T)));
         set(ptr);
+#pragma warning(push)
+#pragma warning(disable:4291)
         new (NotNull, ptr) T;
+#pragma warning(pop)
     }
     return ptr;
 }

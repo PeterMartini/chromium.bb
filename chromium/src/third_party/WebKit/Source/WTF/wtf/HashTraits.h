@@ -112,11 +112,14 @@ namespace WTF {
         static bool isDeletedValue(P* value) { return value == reinterpret_cast<P*>(-1); }
     };
 
+#pragma warning(push)
+#pragma warning(disable:4291)
     template<typename T> struct SimpleClassHashTraits : GenericHashTraits<T> {
         static const bool emptyValueIsZero = true;
         static void constructDeletedValue(T& slot) { new (NotNull, &slot) T(HashTableDeletedValue); }
         static bool isDeletedValue(const T& value) { return value.isHashTableDeletedValue(); }
     };
+#pragma warning(pop)
 
     template<typename P> struct HashTraits<OwnPtr<P> > : SimpleClassHashTraits<OwnPtr<P> > {
         typedef std::nullptr_t EmptyValueType;

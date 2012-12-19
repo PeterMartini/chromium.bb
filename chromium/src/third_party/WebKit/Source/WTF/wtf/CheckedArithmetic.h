@@ -97,7 +97,10 @@ protected:
     }
 
 public:
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasOverflowed() const { return m_overflowed; }
+#pragma warning(pop)
 
 private:
     unsigned char m_overflowed;

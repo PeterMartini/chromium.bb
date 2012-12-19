@@ -218,7 +218,10 @@ public:
     // MemoryCache does not destroy the decoded data of a CachedResource if the decoded data will be likely used.
     virtual bool likelyToBeUsedSoon() { return false; }
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isPreloaded() const { return m_preloadCount; }
+#pragma warning(pop)
     void increasePreloadCount() { ++m_preloadCount; }
     void decreasePreloadCount() { ASSERT(m_preloadCount); --m_preloadCount; }
     
@@ -227,7 +230,10 @@ public:
     
     bool canUseCacheValidator() const;
     bool mustRevalidateDueToCacheHeaders(CachePolicy) const;
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isCacheValidator() const { return m_resourceToRevalidate; }
+#pragma warning(pop)
     CachedResource* resourceToRevalidate() const { return m_resourceToRevalidate; }
     
     bool isPurgeable() const;

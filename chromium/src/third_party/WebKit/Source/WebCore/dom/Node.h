@@ -185,7 +185,10 @@ public:
     bool appendChild(PassRefPtr<Node> newChild, ExceptionCode&, bool shouldLazyAttach = false);
 
     void remove(ExceptionCode&);
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasChildNodes() const { return firstChild(); }
+#pragma warning(pop)
     virtual PassRefPtr<Node> cloneNode(bool deep) = 0;
     const AtomicString& localName() const { return virtualLocalName(); }
     const AtomicString& namespaceURI() const { return virtualNamespaceURI(); }
@@ -715,7 +718,10 @@ private:
 
     // 3 bits remaining
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool getFlag(NodeFlags mask) const { return m_nodeFlags & mask; }
+#pragma warning(pop)
     void setFlag(bool f, NodeFlags mask) const { m_nodeFlags = (m_nodeFlags & ~mask) | (-(int32_t)f & mask); } 
     void setFlag(NodeFlags mask) const { m_nodeFlags |= mask; } 
     void clearFlag(NodeFlags mask) const { m_nodeFlags &= ~mask; } 

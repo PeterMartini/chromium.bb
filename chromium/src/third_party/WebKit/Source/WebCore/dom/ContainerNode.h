@@ -47,7 +47,10 @@ public:
 
     Node* firstChild() const { return m_firstChild; }
     Node* lastChild() const { return m_lastChild; }
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasChildNodes() const { return m_firstChild; }
+#pragma warning(pop)
 
     unsigned childNodeCount() const;
     Node* childNode(unsigned index) const;

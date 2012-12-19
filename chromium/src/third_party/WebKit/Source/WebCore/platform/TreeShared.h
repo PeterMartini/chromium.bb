@@ -119,7 +119,10 @@ public:
 
 private:
 #ifndef NDEBUG
+#pragma warning(push)
+#pragma warning(disable:4396)
     friend void adopted<>(TreeShared<NodeType, ParentNodeType>*);
+#pragma warning(pop)
 #endif
 
     ParentNodeType* m_parent;

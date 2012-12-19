@@ -167,7 +167,10 @@ inline bool isArabicChar(UChar32 c)
 
 inline bool isAlphanumeric(UChar32 c)
 {
+#pragma warning(push)
+#pragma warning(disable:4800)
     return u_isalnum(c);
+#pragma warning(pop)
 }
 
 inline bool isSeparatorSpace(UChar32 c)

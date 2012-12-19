@@ -84,7 +84,10 @@ namespace WTF {
 
         PassRefPtr& operator=(const PassRefPtr&) { COMPILE_ASSERT(!sizeof(T*), PassRefPtr_should_never_be_assigned_to); return *this; }
 
+#pragma warning(push)
+#pragma warning(disable:4396)
         friend PassRefPtr adoptRef<T>(T*);
+#pragma warning(pop)
 
     private:
         // adopting constructor

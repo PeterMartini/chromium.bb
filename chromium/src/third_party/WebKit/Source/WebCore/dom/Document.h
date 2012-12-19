@@ -816,13 +816,19 @@ public:
         SCROLL_LISTENER                      = 0x2000
     };
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasListenerType(ListenerType listenerType) const { return (m_listenerTypes & listenerType); }
+#pragma warning(pop)
     void addListenerTypeIfNeeded(const AtomicString& eventType);
 
 #if ENABLE(MUTATION_OBSERVERS)
     bool hasMutationObserversOfType(MutationObserver::MutationType type) const
     {
+#pragma warning(push)
+#pragma warning(disable:4800)
         return m_mutationObserverTypes & type;
+#pragma warning(pop)
     }
     bool hasMutationObservers() const { return m_mutationObserverTypes; }
     void addMutationObserverTypes(MutationObserverOptions types) { m_mutationObserverTypes |= types; }
@@ -1082,7 +1088,10 @@ public:
     const QualifiedName& idAttributeName() const { return m_idAttributeName; }
     
 #if ENABLE(FULLSCREEN_API)
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool webkitIsFullScreen() const { return m_fullScreenElement.get(); }
+#pragma warning(pop)
     bool webkitFullScreenKeyboardInputAllowed() const { return m_fullScreenElement.get() && m_areKeysEnabledInFullScreen; }
     Element* webkitCurrentFullScreenElement() const { return m_fullScreenElement.get(); }
     
@@ -1127,7 +1136,10 @@ public:
     // Used to allow element that loads data without going through a FrameLoader to delay the 'load' event.
     void incrementLoadEventDelayCount() { ++m_loadEventDelayCount; }
     void decrementLoadEventDelayCount();
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isDelayingLoadEvent() const { return m_loadEventDelayCount; }
+#pragma warning(pop)
 
 #if ENABLE(TOUCH_EVENTS)
     PassRefPtr<Touch> createTouch(DOMWindow*, EventTarget*, int identifier, int pageX, int pageY, int screenX, int screenY, int radiusX, int radiusY, float rotationAngle, float force, ExceptionCode&) const;

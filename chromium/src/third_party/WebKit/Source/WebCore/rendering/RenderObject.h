@@ -260,7 +260,10 @@ public:
     
     // RenderObject tree manipulation
     //////////////////////////////////////////
+#pragma warning(push)
+#pragma warning(disable:4800)
     virtual bool canHaveChildren() const { return virtualChildren(); }
+#pragma warning(pop)
     virtual bool canHaveGeneratedChildren() const;
     virtual bool isChildAllowed(RenderObject*, RenderStyle*) const { return true; }
     virtual void addChild(RenderObject* newChild, RenderObject* beforeChild = 0);

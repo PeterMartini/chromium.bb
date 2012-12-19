@@ -73,8 +73,11 @@ public:
         // The constructor is intentionally implicit to allow conversion from the bit-wise sum of above types
         MarkerTypes(unsigned mask) : m_mask(mask) { }
 
+#pragma warning(push)
+#pragma warning(disable:4800)
         bool contains(MarkerType type) const { return m_mask & type; }
         bool intersects(const MarkerTypes& types) const { return (m_mask & types.m_mask); }
+#pragma warning(pop)
         bool operator==(const MarkerTypes& other) const { return m_mask == other.m_mask; }
 
         void add(const MarkerTypes& types) { m_mask |= types.m_mask; }
