@@ -823,14 +823,14 @@ public:
     void addListenerTypeIfNeeded(const AtomicString& eventType);
 
 #if ENABLE(MUTATION_OBSERVERS)
-    bool hasMutationObserversOfType(MutationObserver::MutationType type) const
-    {
 #pragma warning(push)
 #pragma warning(disable:4800)
+    bool hasMutationObserversOfType(MutationObserver::MutationType type) const
+    {
         return m_mutationObserverTypes & type;
-#pragma warning(pop)
     }
     bool hasMutationObservers() const { return m_mutationObserverTypes; }
+#pragma warning(pop)
     void addMutationObserverTypes(MutationObserverOptions types) { m_mutationObserverTypes |= types; }
 #endif
 

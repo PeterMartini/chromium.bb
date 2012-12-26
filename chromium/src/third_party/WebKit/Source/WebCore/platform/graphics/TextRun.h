@@ -182,8 +182,11 @@ public:
     float xPos() const { return m_xpos; }
     void setXPos(float xPos) { m_xpos = xPos; }
     float expansion() const { return m_expansion; }
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool allowsLeadingExpansion() const { return m_expansionBehavior & AllowLeadingExpansion; }
     bool allowsTrailingExpansion() const { return m_expansionBehavior & AllowTrailingExpansion; }
+#pragma warning(pop)
     TextDirection direction() const { return static_cast<TextDirection>(m_direction); }
     bool rtl() const { return m_direction == RTL; }
     bool ltr() const { return m_direction == LTR; }

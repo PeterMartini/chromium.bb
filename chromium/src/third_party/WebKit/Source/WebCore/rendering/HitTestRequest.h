@@ -54,13 +54,13 @@ public:
     bool ignoreClipping() const { return m_requestType & IgnoreClipping; }
     bool svgClipContent() const { return m_requestType & SVGClipContent; }
     bool touchEvent() const { return m_requestType & TouchEvent; }
-#pragma warning(pop)
     bool mouseEvent() const { return !touchEvent(); }
     bool allowsShadowContent() const { return m_requestType & AllowShadowContent; }
 
     // Convenience functions
     bool touchMove() const { return move() && touchEvent(); }
     bool touchRelease() const { return release() && touchEvent(); }
+#pragma warning(pop)
 
     HitTestRequestType type() const { return m_requestType; }
 

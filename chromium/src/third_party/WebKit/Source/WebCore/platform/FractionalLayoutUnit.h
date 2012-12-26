@@ -105,7 +105,6 @@ public:
     FractionalLayoutUnit(double value) { REPORT_OVERFLOW(isInBounds(value)); m_value = value; }
 #endif
     FractionalLayoutUnit(const FractionalLayoutUnit& value) { m_value = value.rawValue(); }
-#pragma warning(pop)
 
     static FractionalLayoutUnit fromFloatCeil(float value)
     {
@@ -130,6 +129,7 @@ public:
 #endif
         return v;
     }
+#pragma warning(pop)
 
     static FractionalLayoutUnit fromFloatRound(float value)
     {

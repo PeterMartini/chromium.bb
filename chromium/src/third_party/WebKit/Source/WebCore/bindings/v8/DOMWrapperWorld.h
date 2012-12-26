@@ -47,7 +47,10 @@ public:
     static const int uninitializedExtensionGroup = -1;
     // If 0 is passed as worldId, the world will be assigned a temporary id instead.
     static PassRefPtr<DOMWrapperWorld> ensureIsolatedWorld(int worldId, int extensionGroup);
+#pragma warning(push)
+#pragma warning(disable:4800)
     static bool isolatedWorldsExist() { return isolatedWorldCount; }
+#pragma warning(pop)
     // FIXME: this is a workaround for a problem in WebViewImpl.
     // Do not use this anywhere else!!
     static PassRefPtr<DOMWrapperWorld> createUninitializedWorld();

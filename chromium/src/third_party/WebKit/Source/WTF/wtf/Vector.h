@@ -1146,7 +1146,10 @@ namespace WTF {
         }
         T* spot = begin() + position;
         TypeOperations::moveOverlapping(spot, end(), spot + 1);
+#pragma warning(push)
+#pragma warning(disable:4291)
         new (NotNull, spot) T(*data);
+#pragma warning(pop)
         ++m_size;
     }
    
