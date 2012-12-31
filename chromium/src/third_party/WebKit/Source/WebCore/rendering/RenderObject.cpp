@@ -120,6 +120,10 @@ bool RenderObject::s_affectsParentBlock = false;
 
 RenderObjectAncestorLineboxDirtySet* RenderObject::s_ancestorLineboxDirtySet = 0;
 
+std::vector<LayoutTimeStamp*> *g_layoutTimeStamp = NULL;
+void (*g_startLayoutDebugFunc)(void) = NULL;
+void (*g_endLayoutDebugFunc)(void) = NULL;
+
 LayoutTimeStampScope::LayoutTimeStampScope(RenderObject *obj)
 {
     if (g_layoutTimeStamp) {

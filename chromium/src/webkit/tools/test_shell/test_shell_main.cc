@@ -69,40 +69,47 @@ void RemoveSharedMemoryFile(std::string& filename) {
 
 namespace WebCore {
     struct LayoutTimeStamp;
-    std::vector<LayoutTimeStamp*> *g_layoutTimeStamp = NULL;
-    void (*g_startLayoutDebugFunc)(void) = NULL;
-    void (*g_endLayoutDebugFunc)(void) = NULL;
-    extern void printLayoutTimeStamp(std::wostream&, LayoutTimeStamp*);
-    extern void deleteLayoutTimeStamp(LayoutTimeStamp*);
 }
 
+namespace WebKit {
+    WEBKIT_EXPORT std::vector<WebCore::LayoutTimeStamp*>* getLayoutTimeStampVector();
+    WEBKIT_EXPORT void setLayoutTimeStampVector(std::vector<WebCore::LayoutTimeStamp*>*);
+    WEBKIT_EXPORT void setLayoutDebugStartEndFuncs(void(*)(), void(*)());
+    WEBKIT_EXPORT void printLayoutTimeStamp(std::wostream&, WebCore::LayoutTimeStamp*);
+    WEBKIT_EXPORT void deleteLayoutTimeStamp(WebCore::LayoutTimeStamp*);
+}
+
+typedef std::vector<WebCore::LayoutTimeStamp*> LayoutTimeStampVec;
+
 void endLayoutDebug() {
-    if (!WebCore::g_layoutTimeStamp || WebCore::g_layoutTimeStamp->empty()) {
+    LayoutTimeStampVec* layoutTimeStamps = WebKit::getLayoutTimeStampVector();
+
+    if (!layoutTimeStamps || layoutTimeStamps->empty()) {
         return;
     }
 
     // print out the result
     std::wstringstream ss;
 
-    for(int i = 0, len = WebCore::g_layoutTimeStamp->size() ; i < len; i++) {
-        WebCore::LayoutTimeStamp *item = WebCore::g_layoutTimeStamp->at(i);
+    for(int i = 0, len = layoutTimeStamps->size() ; i < len; i++) {
+        WebCore::LayoutTimeStamp *item = layoutTimeStamps->at(i);
         ss.str(L"");
-        WebCore::printLayoutTimeStamp(ss, item);
-        WebCore::deleteLayoutTimeStamp(item);
+        WebKit::printLayoutTimeStamp(ss, item);
+        WebKit::deleteLayoutTimeStamp(item);
         OutputDebugStringW(ss.str().c_str());
         OutputDebugStringW(L"\n");
     }
 
-    // WebCore::g_layoutTimeStamp->clear();
-    delete WebCore::g_layoutTimeStamp;
-    WebCore::g_layoutTimeStamp = NULL;
+    // layoutTimeStamps->clear();
+    delete layoutTimeStamps;
+    WebKit::setLayoutTimeStampVector(NULL);
 }
 
 void startLayoutDebug() {
-    if (WebCore::g_layoutTimeStamp) {
+    if (WebKit::getLayoutTimeStampVector()) {
         endLayoutDebug();
     }
-    WebCore::g_layoutTimeStamp = new std::vector<WebCore::LayoutTimeStamp*>();
+    WebKit::setLayoutTimeStampVector(new std::vector<WebCore::LayoutTimeStamp*>());
 }
 
 
@@ -110,9 +117,8 @@ int main(int argc, char* argv[]) {
   base::EnableInProcessStackDumping();
   base::EnableTerminationOnHeapCorruption();
 
-  //NOTE: uncomment the following lines to enable layout profiling
-  //WebCore::g_startLayoutDebugFunc = &startLayoutDebug;
-  //WebCore::g_endLayoutDebugFunc = &endLayoutDebug;
+  //NOTE: uncomment the following line to enable layout profiling
+  //WebKit::setLayoutDebugStartEndFuncs(startLayoutDebug, endLayoutDebug);
   
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.

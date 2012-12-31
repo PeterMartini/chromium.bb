@@ -123,6 +123,8 @@ double FrameView::s_deferredRepaintDelayIncrementDuringLoading = 0;
 // The maximum number of updateWidgets iterations that should be done before returning.
 static const unsigned maxUpdateWidgetsIterations = 2;
 
+extern std::vector<LayoutTimeStamp*> *g_layoutTimeStamp;
+
 static inline RenderView* rootRenderer(const FrameView* view)
 {
     return view->frame() ? view->frame()->contentRenderer() : 0;
@@ -163,22 +165,6 @@ Pagination::Mode paginationModeForRenderStyle(RenderStyle* style)
     if (writingMode == TopToBottomWritingMode || (!isHorizontalWritingMode && textDirection == RTL))
         return Pagination::TopToBottomPaginated;
     return Pagination::BottomToTopPaginated;
-}
-
-void printLayoutTimeStamp(std::wostream& os, WebCore::LayoutTimeStamp* item)
-{
-    os << item->current << L","
-       << item->tag.charactersWithNullTermination() << L","
-       << (item->id.isNull() ? L"" : item->id.charactersWithNullTermination()) << L","
-       << (item->name.isNull() ? L"" : item->name.charactersWithNullTermination()) << L","
-       << item->renderName << L","
-       << item->duration*1000 << L","
-       << item->parent;
-}
-
-void deleteLayoutTimeStamp(WebCore::LayoutTimeStamp* item)
-{
-    delete item;
 }
 
 

@@ -187,10 +187,6 @@ public:
     ~LayoutTimeStampScope();
 };
 
-extern std::vector<LayoutTimeStamp*> *g_layoutTimeStamp;
-extern void (*g_startLayoutDebugFunc)(void);
-extern void (*g_endLayoutDebugFunc)(void);
-
 
 
 typedef WTF::HashSet<const RenderObject*> RenderObjectAncestorLineboxDirtySet;

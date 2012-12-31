@@ -38,10 +38,47 @@
 #include <public/WebRect.h>
 #include <wtf/PassRefPtr.h>
 
+namespace WebCore {
+    extern std::vector<LayoutTimeStamp*> *g_layoutTimeStamp;
+    extern void (*g_startLayoutDebugFunc)(void);
+    extern void (*g_endLayoutDebugFunc)(void);
+}
 
 using namespace WebCore;
 
 namespace WebKit {
+
+WEBKIT_EXPORT std::vector<LayoutTimeStamp*>* getLayoutTimeStampVector()
+{
+    return g_layoutTimeStamp;
+}
+
+WEBKIT_EXPORT void setLayoutTimeStampVector(std::vector<LayoutTimeStamp*>* vec)
+{
+    g_layoutTimeStamp = vec;
+}
+
+WEBKIT_EXPORT void setLayoutDebugStartEndFuncs(void(*startFunc)(), void(*endFunc)())
+{
+    g_startLayoutDebugFunc = startFunc;
+    g_endLayoutDebugFunc = endFunc;
+}
+
+WEBKIT_EXPORT void printLayoutTimeStamp(std::wostream& os, WebCore::LayoutTimeStamp* item)
+{
+    os << item->current << L","
+       << item->tag.charactersWithNullTermination() << L","
+       << (item->id.isNull() ? L"" : item->id.charactersWithNullTermination()) << L","
+       << (item->name.isNull() ? L"" : item->name.charactersWithNullTermination()) << L","
+       << item->renderName << L","
+       << item->duration*1000 << L","
+       << item->parent;
+}
+
+WEBKIT_EXPORT void deleteLayoutTimeStamp(WebCore::LayoutTimeStamp* item)
+{
+    delete item;
+}
 
 bool WebElement::isFormControlElement() const
 {
