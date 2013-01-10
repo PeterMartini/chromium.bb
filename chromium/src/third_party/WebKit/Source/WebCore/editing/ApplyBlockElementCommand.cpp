@@ -297,7 +297,7 @@ void ApplyBlockElementCommand::formatSelectionBB(const VisiblePosition& startOfS
 
     bool atEnd = false;
     Position end;
-    while (endOfCurrentParagraph != endAfterSelection && !atEnd) {
+    while (endOfCurrentParagraph.isNotNull() && endOfCurrentParagraph != endAfterSelection && !atEnd) {
         if (endOfCurrentParagraph.deepEquivalent() == m_endOfLastParagraph)
             atEnd = true;
 

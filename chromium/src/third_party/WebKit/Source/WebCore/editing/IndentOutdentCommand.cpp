@@ -62,6 +62,51 @@ IndentOutdentCommand::IndentOutdentCommand(Document* document, EIndentType typeO
 {
 }
 
+bool IndentOutdentCommand::canIndentAsListItemBB(const Position& start, const Position& end)
+{
+    // If our selection is not inside a list, bail out.
+    RefPtr<Element> listNode = enclosingList(start.deprecatedNode());
+    if (!listNode)
+        return false;
+
+    // Find the block that we want to indent.
+    RefPtr<Node> selectedListItem = enclosingListChild(start.deprecatedNode());
+    if (!selectedListItem)
+        return false;
+    if (!selectedListItem->hasTagName(liTag))
+        return false;
+    if (!selectedListItem->isDescendantOf(listNode.get()))
+        return false;
+
+    VisiblePosition visibleFirst = firstPositionInNode(selectedListItem.get());
+    VisiblePosition visibleStart = start;
+    return visibleFirst == visibleStart;
+}
+
+void IndentOutdentCommand::indentAsListItemBB(const Position& start, const Position& end)
+{
+    RefPtr<Element> listNode = enclosingList(start.deprecatedNode());
+    ASSERT(listNode);
+    RefPtr<Node> selectedListItem = enclosingListChild(start.deprecatedNode());
+    ASSERT(selectedListItem);
+    ASSERT(selectedListItem->hasTagName(liTag));
+    ASSERT(selectedListItem->isDescendantOf(listNode.get()));
+
+    // FIXME: previousElementSibling does not ignore non-rendered content like <span></span>.  Should we?
+    Element* previousList = toElement(selectedListItem.get())->previousElementSibling();
+    Element* nextList = toElement(selectedListItem.get())->nextElementSibling();
+
+    RefPtr<Element> newList = document()->createElement(listNode->tagQName(), false);
+    insertNodeBefore(newList, selectedListItem);
+    removeNode(selectedListItem);
+    appendNode(selectedListItem, newList);
+
+    if (canMergeLists(previousList, newList.get()))
+        mergeIdenticalElements(previousList, newList);
+    if (canMergeLists(newList.get(), nextList))
+        mergeIdenticalElements(newList, nextList);
+}
+
 bool IndentOutdentCommand::tryIndentingAsListItem(const Position& start, const Position& end)
 {
     // If our selection is not inside a list, bail out.
@@ -268,10 +313,10 @@ void IndentOutdentCommand::formatSelection(const VisiblePosition& startOfSelecti
         outdentRegion(startOfSelection, endOfSelection);
 }
 
-bool areParagraphsOnSameListItem(const VisiblePosition& first, const VisiblePosition& second)
+static bool areParagraphsOnSameListItem(const VisiblePosition& first, const VisiblePosition& second)
 {
-	Node* firstListItem = highestEnclosingNodeOfType(first.deepEquivalent(), &isListItem);
-	Node* secondListItem = highestEnclosingNodeOfType(second.deepEquivalent(), &isListItem);
+	Node* firstListItem = enclosingListChild(first.deepEquivalent().containerNode());
+	Node* secondListItem = enclosingListChild(second.deepEquivalent().containerNode());
 	return firstListItem && firstListItem == secondListItem;
 }
 
@@ -305,32 +350,50 @@ void IndentOutdentCommand::formatRange(const Position& start, const Position& en
         VisiblePosition startOfCurrentParagraph = startOfParagraph(start);
         VisiblePosition endOfCurrentParagraph = endOfParagraph(start);
         VisiblePosition endOfLastParagraph = endOfParagraph(end);
+        Node* enclosingCell = enclosingNodeOfType(start, &isTableCell);
 
-        while (true) {
+        while (endOfCurrentParagraph.isNotNull()) {
             VisiblePosition startOfNextParagraph = endOfCurrentParagraph.next();
 
+            bool shouldIndentAsListItem
+                = m_typeOfAction != Outdent && canIndentAsListItemBB(startOfCurrentParagraph.deepEquivalent(), endOfCurrentParagraph.deepEquivalent());
+
+            if (m_typeOfAction == Outdent || shouldIndentAsListItem) {
+                // If startOfCurrentParagraph and startOfNextParagraph are on the same
+                // list item, outdentRegion/indentAsListItemBB will still outdent/indent
+                // the entire list item, which causes startOfNextParagraph to point to a
+                // removed node.  We need to keep moving to the end of the next paragraph until
+                // the current paragraph and the next paragraph are not under the same list item.
+                while (startOfNextParagraph.isNotNull() && endOfCurrentParagraph != endOfLastParagraph && areParagraphsOnSameListItem(startOfCurrentParagraph, startOfNextParagraph)) {
+                    endOfCurrentParagraph = endOfParagraph(startOfNextParagraph);
+                    startOfNextParagraph = endOfCurrentParagraph.next();
+                }
+            }
+
             if (m_typeOfAction == Outdent) {
-				// If startOfCurrentParagraph and startOfNextParagraph are on the same
-				// list item, outdentRegion will still outdent the entire list item,
-				// which causes startOfNextParagraph to point to a removed node.
-				// We need to keep moving to the end of the next paragraph until the
-				// current paragraph and the next paragraph are not under the same list item.
-				while (endOfCurrentParagraph != endOfLastParagraph && areParagraphsOnSameListItem(startOfCurrentParagraph, startOfNextParagraph)) {
-					endOfCurrentParagraph = endOfParagraph(startOfNextParagraph);
-					startOfNextParagraph = endOfCurrentParagraph.next();
-				}
                 outdentRegion(startOfCurrentParagraph, endOfCurrentParagraph);
             }
             else {
-                if (tryIndentingAsListItem(startOfCurrentParagraph.deepEquivalent(), endOfCurrentParagraph.deepEquivalent()))
+                if (shouldIndentAsListItem) {
+                    indentAsListItemBB(startOfCurrentParagraph.deepEquivalent(), endOfCurrentParagraph.deepEquivalent());
                     blockquoteForNextIndent = 0;
+                }
                 else
                     indentIntoBlockquote(startOfCurrentParagraph.deepEquivalent(), endOfCurrentParagraph.deepEquivalent(), blockquoteForNextIndent);
             }
 
-            if (endOfCurrentParagraph == endOfLastParagraph) {
+            if (endOfCurrentParagraph == endOfLastParagraph || startOfNextParagraph.isNull()) {
                 break;
             }
+
+            // Don't put the next paragraph in the blockquote we just created for this paragraph unless 
+            // the next paragraph is in the same cell.
+            Node* nextEnclosingCell = enclosingNodeOfType(startOfNextParagraph.deepEquivalent(), &isTableCell);
+            if (enclosingCell != nextEnclosingCell) {
+                blockquoteForNextIndent = 0;
+                enclosingCell = nextEnclosingCell;
+            }
+
             startOfCurrentParagraph = startOfNextParagraph;
             endOfCurrentParagraph = endOfParagraph(startOfCurrentParagraph);
         }

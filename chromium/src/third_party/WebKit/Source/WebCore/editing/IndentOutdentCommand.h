@@ -49,6 +49,8 @@ private:
     void indentRegion(const VisiblePosition&, const VisiblePosition&);
     void outdentRegion(const VisiblePosition&, const VisiblePosition&);
     void outdentParagraph();
+    bool canIndentAsListItemBB(const Position&, const Position&);
+    void indentAsListItemBB(const Position&, const Position&);
     bool tryIndentingAsListItem(const Position&, const Position&);
     void indentIntoBlockquote(const Position&, const Position&, RefPtr<Element>&, bool isIndentingEntireList = false);
 
