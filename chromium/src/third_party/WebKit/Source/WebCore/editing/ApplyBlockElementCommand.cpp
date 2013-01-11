@@ -284,4 +284,61 @@ PassRefPtr<Element> ApplyBlockElementCommand::createBlockElement() const
     return element.release();
 }
 
+void ApplyBlockElementCommand::formatSelectionBB(const VisiblePosition& startOfSelection, const VisiblePosition& endOfSelection)
+{
+    Position startOfRange;
+    Position start = startOfSelection.deepEquivalent().downstream();
+
+    RefPtr<Element> blockquoteForNextIndent;
+    VisiblePosition endOfCurrentParagraph = endOfParagraph(startOfSelection);
+    VisiblePosition endAfterSelection = endOfParagraph(endOfParagraph(endOfSelection).next());
+    m_endOfLastParagraph = endOfParagraph(endOfSelection).deepEquivalent();
+    Node* highestList = highestEnclosingNodeOfType(endOfCurrentParagraph.deepEquivalent(), &isListElement);
+
+    bool atEnd = false;
+    Position end;
+    while (endOfCurrentParagraph != endAfterSelection && !atEnd) {
+        if (endOfCurrentParagraph.deepEquivalent() == m_endOfLastParagraph)
+            atEnd = true;
+
+        rangeForParagraphSplittingTextNodesIfNeeded(endOfCurrentParagraph, start, end);
+        endOfCurrentParagraph = end;
+
+        if (startOfRange.isNull()) {
+            startOfRange = start;
+        }
+
+        Position afterEnd = end.next();
+        Node* enclosingCell = enclosingNodeOfType(start, &isTableCell);
+        VisiblePosition endOfNextParagraph = endOfNextParagrahSplittingTextNodesIfNeeded(endOfCurrentParagraph, start, end);
+        Node* nextHighestList = highestEnclosingNodeOfType(endOfNextParagraph.deepEquivalent(), &isListElement);
+
+        if (nextHighestList != highestList || atEnd) {
+            formatRange(startOfRange, end, m_endOfLastParagraph, blockquoteForNextIndent);
+
+            // Don't put the next paragraph in the blockquote we just created for this paragraph unless 
+            // the next paragraph is in the same cell.
+            if (enclosingCell && enclosingCell != enclosingNodeOfType(endOfNextParagraph.deepEquivalent(), &isTableCell))
+                blockquoteForNextIndent = 0;
+
+            // indentIntoBlockquote could move more than one paragraph if the paragraph
+            // is in a list item or a table. As a result, endAfterSelection could refer to a position
+            // no longer in the document.
+            if (endAfterSelection.isNotNull() && !endAfterSelection.deepEquivalent().anchorNode()->inDocument())
+                break;
+            // Sanity check: Make sure our moveParagraph calls didn't remove endOfNextParagraph.deepEquivalent().deprecatedNode()
+            // If somehow we did, return to prevent crashes.
+            if (endOfNextParagraph.isNotNull() && !endOfNextParagraph.deepEquivalent().anchorNode()->inDocument()) {
+                ASSERT_NOT_REACHED();
+                return;
+            }
+
+            startOfRange.clear();
+        }
+
+        endOfCurrentParagraph = endOfNextParagraph;
+        highestList = nextHighestList;
+    }
+}
+
 }

@@ -44,6 +44,7 @@ protected:
     virtual void formatSelection(const VisiblePosition& startOfSelection, const VisiblePosition& endOfSelection);
     PassRefPtr<Element> createBlockElement() const;
     const QualifiedName tagName() const { return m_tagName; }
+    void formatSelectionBB(const VisiblePosition& startOfSelection, const VisiblePosition& endOfSelection);
 
 private:
     virtual void doApply();

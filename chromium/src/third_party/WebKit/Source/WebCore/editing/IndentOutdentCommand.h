@@ -34,15 +34,15 @@ namespace WebCore {
 class IndentOutdentCommand : public ApplyBlockElementCommand {
 public:
     enum EIndentType { Indent, Outdent };
-    static PassRefPtr<IndentOutdentCommand> create(Document* document, EIndentType type, int marginInPixels = 0)
+    static PassRefPtr<IndentOutdentCommand> create(Document* document, EIndentType type, int marginInPixels = 0, bool isBBVersion = false)
     {
-        return adoptRef(new IndentOutdentCommand(document, type, marginInPixels));
+        return adoptRef(new IndentOutdentCommand(document, type, marginInPixels, isBBVersion));
     }
 
     virtual bool preservesTypingStyle() const { return true; }
 
 private:
-    IndentOutdentCommand(Document*, EIndentType, int marginInPixels);
+    IndentOutdentCommand(Document*, EIndentType, int marginInPixels, bool isBBVersion);
 
     virtual EditAction editingAction() const { return m_typeOfAction == Indent ? EditActionIndent : EditActionOutdent; }
 
@@ -50,13 +50,14 @@ private:
     void outdentRegion(const VisiblePosition&, const VisiblePosition&);
     void outdentParagraph();
     bool tryIndentingAsListItem(const Position&, const Position&);
-    void indentIntoBlockquote(const Position&, const Position&, RefPtr<Element>&);
+    void indentIntoBlockquote(const Position&, const Position&, RefPtr<Element>&, bool isIndentingEntireList = false);
 
     void formatSelection(const VisiblePosition& startOfSelection, const VisiblePosition& endOfSelection);
     void formatRange(const Position& start, const Position& end, const Position& endOfSelection, RefPtr<Element>& blockquoteForNextIndent);
 
     EIndentType m_typeOfAction;
     int m_marginInPixels;
+    bool m_isBBVersion;
 };
 
 } // namespace WebCore

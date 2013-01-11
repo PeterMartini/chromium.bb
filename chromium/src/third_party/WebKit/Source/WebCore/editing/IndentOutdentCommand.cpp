@@ -49,10 +49,16 @@ static bool isListOrIndentBlockquote(const Node* node)
     return node && (node->hasTagName(ulTag) || node->hasTagName(olTag) || node->hasTagName(blockquoteTag));
 }
 
-IndentOutdentCommand::IndentOutdentCommand(Document* document, EIndentType typeOfAction, int marginInPixels)
+static bool isIndentBlockquote(const Node* node)
+{
+    return node && node->hasTagName(blockquoteTag);
+}
+
+IndentOutdentCommand::IndentOutdentCommand(Document* document, EIndentType typeOfAction, int marginInPixels, bool isBBVersion)
     : ApplyBlockElementCommand(document, blockquoteTag, "margin: 0 0 0 40px; border: none; padding: 0px;")
     , m_typeOfAction(typeOfAction)
     , m_marginInPixels(marginInPixels)
+    , m_isBBVersion(isBBVersion)
 {
 }
 
@@ -88,13 +94,13 @@ bool IndentOutdentCommand::tryIndentingAsListItem(const Position& start, const P
     return true;
 }
 
-void IndentOutdentCommand::indentIntoBlockquote(const Position& start, const Position& end, RefPtr<Element>& targetBlockquote)
+void IndentOutdentCommand::indentIntoBlockquote(const Position& start, const Position& end, RefPtr<Element>& targetBlockquote, bool isIndentingEntireList)
 {
     Node* enclosingCell = enclosingNodeOfType(start, &isTableCell);
     Node* nodeToSplitTo;
     if (enclosingCell)
         nodeToSplitTo = enclosingCell;
-    else if (enclosingList(start.containerNode()))
+    else if (enclosingList(start.containerNode()) && !isIndentingEntireList)
         nodeToSplitTo = enclosingBlock(start.containerNode());
     else
         nodeToSplitTo = editableRootForPosition(start);
@@ -128,6 +134,15 @@ void IndentOutdentCommand::outdentParagraph()
     Node* enclosingNode = enclosingNodeOfType(visibleStartOfParagraph.deepEquivalent(), &isListOrIndentBlockquote);
     if (!enclosingNode || !enclosingNode->parentNode()->rendererIsEditable()) // We can't outdent if there is no place to go!
         return;
+
+    if (m_isBBVersion) {
+        if (isListElement(enclosingNode)) {
+            Node* highestList = highestEnclosingNodeOfType(visibleStartOfParagraph.deepEquivalent(), &isListElement);
+            if (enclosingNode == highestList) {
+                return;
+            }
+        }
+    }
 
     // Use InsertListCommand to remove the selection from the list
     if (enclosingNode->hasTagName(olTag)) {
@@ -192,11 +207,14 @@ void IndentOutdentCommand::outdentRegion(const VisiblePosition& startOfSelection
     VisiblePosition endOfLastParagraph = endOfParagraph(endOfSelection);
 
     if (endOfParagraph(startOfSelection) == endOfLastParagraph) {
+        if (m_isBBVersion) {
+            setEndingSelection(endOfSelection);
+        }
         outdentParagraph();
         return;
     }
     
-    Position originalSelectionEnd = endingSelection().end();
+    Position originalSelectionEnd = m_isBBVersion ? endOfSelection.deepEquivalent() : endingSelection().end();
     VisiblePosition endOfCurrentParagraph = endOfParagraph(startOfSelection);
     VisiblePosition endAfterSelection = endOfParagraph(endOfParagraph(endOfSelection).next());
 
@@ -225,14 +243,101 @@ void IndentOutdentCommand::outdentRegion(const VisiblePosition& startOfSelection
 
 void IndentOutdentCommand::formatSelection(const VisiblePosition& startOfSelection, const VisiblePosition& endOfSelection)
 {
+    if (m_isBBVersion) {
+        if (m_typeOfAction == Indent) {
+            // Special case empty unsplittable elements because there's nothing to split
+            // and there's nothing to move.
+            Position start = startOfSelection.deepEquivalent().downstream();
+            if (isAtUnsplittableElement(start)) {
+                RefPtr<Element> blockquote = createBlockElement();
+                insertNodeAt(blockquote, start);
+                RefPtr<Element> placeholder = createBreakElement(document());
+                appendNode(placeholder, blockquote);
+                setEndingSelection(VisibleSelection(positionBeforeNode(placeholder.get()), DOWNSTREAM, endingSelection().isDirectional()));
+                return;
+            }
+        }
+
+        formatSelectionBB(startOfSelection, endOfSelection);
+        return;
+    }
+
     if (m_typeOfAction == Indent)
         ApplyBlockElementCommand::formatSelection(startOfSelection, endOfSelection);
     else
         outdentRegion(startOfSelection, endOfSelection);
 }
 
+bool areParagraphsOnSameListItem(const VisiblePosition& first, const VisiblePosition& second)
+{
+	Node* firstListItem = highestEnclosingNodeOfType(first.deepEquivalent(), &isListItem);
+	Node* secondListItem = highestEnclosingNodeOfType(second.deepEquivalent(), &isListItem);
+	return firstListItem && firstListItem == secondListItem;
+}
+
 void IndentOutdentCommand::formatRange(const Position& start, const Position& end, const Position&, RefPtr<Element>& blockquoteForNextIndent)
 {
+    if (m_isBBVersion) {
+        Node* highestList = highestEnclosingNodeOfType(start, &isListElement);
+        if (highestList) {
+            if (isFirstVisiblePositionInNode(start, highestList) && isLastVisiblePositionInNode(end, highestList)) {
+                if (m_typeOfAction == Indent) {
+                    indentIntoBlockquote(start, end, blockquoteForNextIndent, true);
+                }
+                else {
+                    Node* enclosingNode = enclosingNodeOfType(start, &isIndentBlockquote);
+                    if (!enclosingNode || !enclosingNode->parentNode()->rendererIsEditable()) // We can't outdent if there is no place to go!
+                        return;
+
+                    splitTreeToNode(highestList, enclosingNode, true);
+                    if (highestList->nextSibling()) {
+                        splitTreeToNode(highestList->nextSibling(), enclosingNode, true);
+                        enclosingNode = enclosingNodeOfType(start, &isIndentBlockquote);
+                    }
+
+                    removeNodePreservingChildren(enclosingNode);
+                    document()->updateLayoutIgnorePendingStylesheets();
+                }
+                return;
+            }
+        }
+
+        VisiblePosition startOfCurrentParagraph = startOfParagraph(start);
+        VisiblePosition endOfCurrentParagraph = endOfParagraph(start);
+        VisiblePosition endOfLastParagraph = endOfParagraph(end);
+
+        while (true) {
+            VisiblePosition startOfNextParagraph = endOfCurrentParagraph.next();
+
+            if (m_typeOfAction == Outdent) {
+				// If startOfCurrentParagraph and startOfNextParagraph are on the same
+				// list item, outdentRegion will still outdent the entire list item,
+				// which causes startOfNextParagraph to point to a removed node.
+				// We need to keep moving to the end of the next paragraph until the
+				// current paragraph and the next paragraph are not under the same list item.
+				while (endOfCurrentParagraph != endOfLastParagraph && areParagraphsOnSameListItem(startOfCurrentParagraph, startOfNextParagraph)) {
+					endOfCurrentParagraph = endOfParagraph(startOfNextParagraph);
+					startOfNextParagraph = endOfCurrentParagraph.next();
+				}
+                outdentRegion(startOfCurrentParagraph, endOfCurrentParagraph);
+            }
+            else {
+                if (tryIndentingAsListItem(startOfCurrentParagraph.deepEquivalent(), endOfCurrentParagraph.deepEquivalent()))
+                    blockquoteForNextIndent = 0;
+                else
+                    indentIntoBlockquote(startOfCurrentParagraph.deepEquivalent(), endOfCurrentParagraph.deepEquivalent(), blockquoteForNextIndent);
+            }
+
+            if (endOfCurrentParagraph == endOfLastParagraph) {
+                break;
+            }
+            startOfCurrentParagraph = startOfNextParagraph;
+            endOfCurrentParagraph = endOfParagraph(startOfCurrentParagraph);
+        }
+
+        return;
+    }
+
     if (tryIndentingAsListItem(start, end))
         blockquoteForNextIndent = 0;
     else
