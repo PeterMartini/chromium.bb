@@ -48,8 +48,6 @@
 #error both DEBUG and NDEBUG are set
 #endif
 
-#define BUILDING_V8_SHARED
-
 // Basic includes
 #include "../include/v8.h"
 #include "v8globals.h"
