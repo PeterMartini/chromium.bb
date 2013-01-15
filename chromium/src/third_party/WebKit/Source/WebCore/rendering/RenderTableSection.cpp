@@ -359,6 +359,8 @@ void RenderTableSection::layout()
     ASSERT(!needsCellRecalc());
     ASSERT(!table()->needsSectionRecalc());
 
+    LayoutTimeStampScope timestampScope(this);
+
     // addChild may over-grow m_grid but we don't want to throw away the memory too early as addChild
     // can be called in a loop (e.g during parsing). Doing it now ensures we have a stable-enough structure.
     m_grid.shrinkToFit();

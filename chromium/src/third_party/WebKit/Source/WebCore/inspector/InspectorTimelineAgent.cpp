@@ -55,6 +55,8 @@
 #include <wtf/CurrentTime.h>
 
 namespace WebCore {
+extern void (*g_startLayoutDebugFunc)(void);
+extern void (*g_endLayoutDebugFunc)(void);
 
 namespace TimelineAgentState {
 static const char timelineAgentEnabled[] = "timelineAgentEnabled";
@@ -174,6 +176,9 @@ void InspectorTimelineAgent::start(ErrorString*, const int* maxCallStackDepth)
     m_instrumentingAgents->setInspectorTimelineAgent(this);
     ScriptGCEvent::addEventListener(this);
     m_state->setBoolean(TimelineAgentState::timelineAgentEnabled, true);
+    if (g_startLayoutDebugFunc) {
+        (*g_startLayoutDebugFunc)();
+    }
 }
 
 void InspectorTimelineAgent::stop(ErrorString*)
@@ -191,6 +196,9 @@ void InspectorTimelineAgent::stop(ErrorString*)
     m_gcEvents.clear();
 
     m_state->setBoolean(TimelineAgentState::timelineAgentEnabled, false);
+    if (g_endLayoutDebugFunc) {
+        (*g_endLayoutDebugFunc)();
+    }
 }
 
 void InspectorTimelineAgent::setIncludeMemoryDetails(ErrorString*, bool value)

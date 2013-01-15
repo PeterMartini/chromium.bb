@@ -1304,7 +1304,9 @@ void RenderListMarker::layout()
 {
     StackStats::LayoutCheckPoint layoutCheckPoint;
     ASSERT(needsLayout());
- 
+
+    LayoutTimeStampScope timestampScope(this);
+
     if (isImage()) {
         setWidth(m_image->imageSize(this, style()->effectiveZoom()).width());
         setHeight(m_image->imageSize(this, style()->effectiveZoom()).height());

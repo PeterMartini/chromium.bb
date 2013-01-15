@@ -145,6 +145,9 @@ bool RenderSVGShape::strokeContains(const FloatPoint& point, bool requiresStroke
 void RenderSVGShape::layout()
 {
     StackStats::LayoutCheckPoint layoutCheckPoint;
+
+    LayoutTimeStampScope timestampScope(this);
+
     LayoutRepainter repainter(*this, checkForRepaintDuringLayout() && selfNeedsLayout());
     SVGStyledTransformableElement* element = static_cast<SVGStyledTransformableElement*>(node());
 

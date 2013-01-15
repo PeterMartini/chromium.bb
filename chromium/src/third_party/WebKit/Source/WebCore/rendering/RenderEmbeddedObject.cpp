@@ -230,6 +230,8 @@ void RenderEmbeddedObject::layout()
 {
     StackStats::LayoutCheckPoint layoutCheckPoint;
     ASSERT(needsLayout());
+    
+    LayoutTimeStampScope timestampScope(this);
 
     updateLogicalWidth();
     updateLogicalHeight();

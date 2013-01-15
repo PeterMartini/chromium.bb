@@ -39,6 +39,7 @@
 #include "webkit/tools/test_shell/test_shell_request_context.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 #include "webkit/tools/test_shell/test_shell_webkit_init.h"
+#include <sstream>
 
 #if defined(OS_WIN)
 #pragma warning(disable: 4996)
@@ -66,10 +67,53 @@ void RemoveSharedMemoryFile(std::string& filename) {
 
 }  // namespace
 
+namespace WebCore {
+    struct LayoutTimeStamp;
+    std::vector<LayoutTimeStamp*> *g_layoutTimeStamp = NULL;
+    void (*g_startLayoutDebugFunc)(void) = NULL;
+    void (*g_endLayoutDebugFunc)(void) = NULL;
+    extern void printLayoutTimeStamp(std::wostream&, LayoutTimeStamp*);
+    extern void deleteLayoutTimeStamp(LayoutTimeStamp*);
+}
+
+void endLayoutDebug() {
+    if (!WebCore::g_layoutTimeStamp || WebCore::g_layoutTimeStamp->empty()) {
+        return;
+    }
+
+    // print out the result
+    std::wstringstream ss;
+
+    for(int i = 0, len = WebCore::g_layoutTimeStamp->size() ; i < len; i++) {
+        WebCore::LayoutTimeStamp *item = WebCore::g_layoutTimeStamp->at(i);
+        ss.str(L"");
+        WebCore::printLayoutTimeStamp(ss, item);
+        WebCore::deleteLayoutTimeStamp(item);
+        OutputDebugStringW(ss.str().c_str());
+        OutputDebugStringW(L"\n");
+    }
+
+    // WebCore::g_layoutTimeStamp->clear();
+    delete WebCore::g_layoutTimeStamp;
+    WebCore::g_layoutTimeStamp = NULL;
+}
+
+void startLayoutDebug() {
+    if (WebCore::g_layoutTimeStamp) {
+        endLayoutDebug();
+    }
+    WebCore::g_layoutTimeStamp = new std::vector<WebCore::LayoutTimeStamp*>();
+}
+
+
 int main(int argc, char* argv[]) {
   base::EnableInProcessStackDumping();
   base::EnableTerminationOnHeapCorruption();
 
+  //NOTE: uncomment the following lines to enable layout profiling
+  //WebCore::g_startLayoutDebugFunc = &startLayoutDebug;
+  //WebCore::g_endLayoutDebugFunc = &endLayoutDebug;
+  
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;

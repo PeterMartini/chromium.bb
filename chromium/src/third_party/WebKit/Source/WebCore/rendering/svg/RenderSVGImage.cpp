@@ -81,6 +81,7 @@ void RenderSVGImage::layout()
 {
     StackStats::LayoutCheckPoint layoutCheckPoint;
     ASSERT(needsLayout());
+    LayoutTimeStampScope timestampScope(this);
 
     LayoutRepainter repainter(*this, checkForRepaintDuringLayout() && selfNeedsLayout());
     updateImageViewport();
