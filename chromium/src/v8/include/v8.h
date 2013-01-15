@@ -54,10 +54,10 @@
 
 #ifdef BUILDING_V8_SHARED
 #define V8EXPORT __declspec(dllexport)
-#elif USING_V8_SHARED
-#define V8EXPORT __declspec(dllimport)
-#else
+#elif defined NOT_USING_V8_SHARED
 #define V8EXPORT
+#else
+#define V8EXPORT __declspec(dllimport)
 #endif  // BUILDING_V8_SHARED
 
 #else  // _WIN32
