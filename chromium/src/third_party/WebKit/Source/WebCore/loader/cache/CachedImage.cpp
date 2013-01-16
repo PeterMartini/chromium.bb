@@ -24,6 +24,11 @@
 #include "config.h"
 #include "CachedImage.h"
 
+// SHEZ: not sure if these two are needed, but add them just in case
+#include "TransformationMatrix.h"
+#include "LayoutTypes.h"
+#include "RenderBox.h"
+
 #include "BitmapImage.h"
 #include "CachedImageClient.h"
 #include "CachedResourceClient.h"
@@ -184,6 +189,50 @@ Image* CachedImage::imageForRenderer(const RenderObject* renderer)
     return Image::nullImage();
 }
 
+// SHEZ: helper function.  there's probably a better way to do this
+static void GetTransformMatrix(TransformationMatrix* output, const RenderObject* renderer)
+{
+    output->makeIdentity();
+
+    while (renderer) {
+        RenderStyle* style = renderer->style();
+        if (renderer->style()->hasTransform()) {
+            TransformationMatrix localTrans;
+            LayoutSize boundingBox;
+            if (renderer->isBox()) {
+                boundingBox = toRenderBox(renderer)->size();
+            }
+            renderer->style()->applyTransform(localTrans, boundingBox);
+            *output = localTrans * (*output);
+        }
+
+        renderer = renderer->parent();
+    }
+}
+
+FloatSize shezGetContainerScaleWithTransform(const RenderObject* renderer,
+                                             const SVGImageCache::SizeAndScales& sizeAndScales)
+{
+    if (!sizeAndScales.scale.isEmpty()) {
+        return sizeAndScales.scale;
+    }
+
+    FloatSize result(1,1);
+    result.scale(renderer->document()->page()->deviceScaleFactor() * renderer->document()->page()->pageScaleFactor());
+
+    // SHEZ: take css transform scale into account.  there's probably a better way to do this
+    if (!sizeAndScales.size.isEmpty()) {
+        TransformationMatrix transform;
+        GetTransformMatrix(&transform, renderer);
+        FloatSize fsize = sizeAndScales.size;
+        FloatRect rc = transform.mapRect(FloatRect(FloatPoint(), fsize));
+        float sx = rc.width() / fsize.width();
+        float sy = rc.height() / fsize.height();
+        result.scale(sx,sy);
+    }
+    return result;
+}
+
 void CachedImage::setContainerSizeForRenderer(const RenderObject* renderer, const IntSize& containerSize, float containerZoom)
 {
     if (!m_image || containerSize.isEmpty())
@@ -244,14 +293,10 @@ LayoutSize CachedImage::imageSizeForRenderer(const RenderObject* renderer, float
     if (m_image->isSVGImage()) {
         SVGImageCache::SizeAndScales sizeAndScales = m_svgImageCache->requestedSizeAndScales(renderer);
         if (!sizeAndScales.size.isEmpty()) {
-            float scale = sizeAndScales.scale;
-            if (!scale) {
-                Page* page = renderer->document()->page();
-                scale = page->deviceScaleFactor() * page->pageScaleFactor();
-            }
+            FloatSize scale = shezGetContainerScaleWithTransform(renderer, sizeAndScales);
 
-            imageSize.setWidth(scale * sizeAndScales.size.width() / sizeAndScales.zoom);
-            imageSize.setHeight(scale * sizeAndScales.size.height() / sizeAndScales.zoom);
+            imageSize.setWidth(scale.width() * sizeAndScales.size.width() / sizeAndScales.zoom);
+            imageSize.setHeight(scale.height() * sizeAndScales.size.height() / sizeAndScales.zoom);
         }
     }
 #endif
