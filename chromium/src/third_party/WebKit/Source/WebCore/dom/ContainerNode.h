@@ -67,7 +67,10 @@ public:
     {
         if (!isMainThread())
             return false;
+#pragma warning(push)
+#pragma warning(disable:4800)
         return s_count;
+#pragma warning(pop)
     }
 #endif
 
