@@ -94,7 +94,10 @@ public:
     RenderObject* caretRenderer() const;
     void paintDragCaret(Frame*, GraphicsContext*, const LayoutPoint&, const LayoutRect& clipRect) const;
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isContentEditable() const { return m_position.rootEditableElement(); }
+#pragma warning(pop)
     bool isContentRichlyEditable() const;
 
     bool hasCaret() const { return m_position.isNotNull(); }

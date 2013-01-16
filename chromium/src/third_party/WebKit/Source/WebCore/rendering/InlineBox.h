@@ -221,10 +221,13 @@ public:
         else
             setY(left);
     }
+#pragma warning(push)
+#pragma warning(disable:4244)
     int pixelSnappedLogicalLeft() const { return logicalLeft(); }
     int pixelSnappedLogicalRight() const { return ceilf(logicalRight()); }
     int pixelSnappedLogicalTop() const { return logicalTop(); }
     int pixelSnappedLogicalBottom() const { return ceilf(logicalBottom()); }
+#pragma warning(pop)
 
     // The logicalTop[ position is the top edge of the line box in a horizontal line and the left edge in a vertical line.
     float logicalTop() const { return isHorizontal() ? m_topLeft.y() : m_topLeft.x(); }

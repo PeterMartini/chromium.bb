@@ -152,7 +152,10 @@ namespace WTF {
         reverse_iterator makeReverseIterator(Node*);
         const_reverse_iterator makeConstReverseIterator(Node*) const;
 
+#pragma warning(push)
+#pragma warning(disable:4396)
         friend void deleteAllValues<>(const ListHashSet&);
+#pragma warning(pop)
 
         ImplType m_impl;
         Node* m_head;
@@ -497,7 +500,10 @@ namespace WTF {
         template<typename T, typename U> static bool equal(const T& a, const U& b) { return HashFunctions::equal(a->m_value, b); }
         template<typename T, typename U, typename V> static void translate(T*& location, const U& key, const V& allocator)
         {
+#pragma warning(push)
+#pragma warning(disable:4291)
             location = new (allocator) T(key);
+#pragma warning(pop)
         }
     };
 

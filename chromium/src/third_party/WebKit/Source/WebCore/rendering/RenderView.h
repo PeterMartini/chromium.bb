@@ -225,7 +225,10 @@ public:
     // rewrite the counter and quotes code.
     void addRenderCounter() { m_renderCounterCount++; }
     void removeRenderCounter() { ASSERT(m_renderCounterCount > 0); m_renderCounterCount--; }
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasRenderCounters() { return m_renderCounterCount; }
+#pragma warning(pop)
 
 protected:
     virtual void mapLocalToContainer(RenderLayerModelObject* repaintContainer, TransformState&, MapCoordinatesFlags = ApplyContainerFlip, bool* wasFixed = 0) const OVERRIDE;

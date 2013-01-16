@@ -110,7 +110,10 @@ public:
     int offsetForPosition(const TextRun&, float position, bool includePartialGlyphs) const;
     FloatRect selectionRectForText(const TextRun&, const FloatPoint&, int h, int from = 0, int to = -1) const;
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isSmallCaps() const { return m_fontDescription.smallCaps(); }
+#pragma warning(pop)
 
     short wordSpacing() const { return m_wordSpacing; }
     short letterSpacing() const { return m_letterSpacing; }

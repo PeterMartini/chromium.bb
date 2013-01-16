@@ -51,7 +51,10 @@ public:
 
     Image* image(); // Returns the nullImage() if the image is not available yet.
     Image* imageForRenderer(const RenderObject*); // Returns the nullImage() if the image is not available yet.
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasImage() const { return m_image.get(); }
+#pragma warning(pop)
 
     std::pair<Image*, float> brokenImage(float deviceScaleFactor) const; // Returns an image and the image's resolution scale factor.
     bool willPaintBrokenImage() const; 

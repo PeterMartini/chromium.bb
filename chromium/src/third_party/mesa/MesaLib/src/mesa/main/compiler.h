@@ -201,8 +201,11 @@ extern "C" {
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 #else
+#pragma warning(push)
+#pragma warning(disable:4005)
 #define likely(x) !!(x)
 #define unlikely(x) !!(x)
+#pragma warning(pop)
 #endif
 
 /**

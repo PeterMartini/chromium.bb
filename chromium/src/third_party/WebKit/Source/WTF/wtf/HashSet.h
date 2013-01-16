@@ -92,7 +92,10 @@ namespace WTF {
         void clear();
 
     private:
+#pragma warning(push)
+#pragma warning(disable:4396)
         friend void deleteAllValues<>(const HashSet&);
+#pragma warning(pop)
 
         HashTableType m_impl;
     };

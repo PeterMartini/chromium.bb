@@ -90,7 +90,10 @@ namespace WTF {
         static void move(const T* src, const T* srcEnd, T* dst)
         {
             while (src != srcEnd) {
+#pragma warning(push)
+#pragma warning(disable:4291)
                 new (NotNull, dst) T(*src);
+#pragma warning(pop)
 #if COMPILER(SUNCC) && __SUNPRO_CC <= 0x590
                 const_cast<T*>(src)->~T(); // Work around obscure SunCC 12 compiler bug.
 #else
@@ -138,7 +141,10 @@ namespace WTF {
         static void uninitializedCopy(const T* src, const T* srcEnd, T* dst) 
         {
             while (src != srcEnd) {
+#pragma warning(push)
+#pragma warning(disable:4291)
                 new (NotNull, dst) T(*src);
+#pragma warning(pop)
                 ++dst;
                 ++src;
             }
@@ -993,7 +999,10 @@ namespace WTF {
     ALWAYS_INLINE void Vector<T, inlineCapacity>::append(const U& val)
     {
         if (size() != capacity()) {
+#pragma warning(push)
+#pragma warning(disable:4291)
             new (NotNull, end()) T(val);
+#pragma warning(pop)
             ++m_size;
             return;
         }
@@ -1011,7 +1020,10 @@ namespace WTF {
         if (!begin())
             return;
 
+#pragma warning(push)
+#pragma warning(disable:4291)
         new (NotNull, end()) T(*ptr);
+#pragma warning(pop)
         ++m_size;
     }
 
@@ -1073,7 +1085,10 @@ namespace WTF {
         }
         T* spot = begin() + position;
         TypeOperations::moveOverlapping(spot, end(), spot + 1);
+#pragma warning(push)
+#pragma warning(disable:4291)
         new (NotNull, spot) T(*data);
+#pragma warning(pop)
         ++m_size;
     }
    

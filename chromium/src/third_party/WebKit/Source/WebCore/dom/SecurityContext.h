@@ -64,7 +64,10 @@ public:
     bool isSecureTransitionTo(const KURL&) const;
 
     void enforceSandboxFlags(SandboxFlags mask);
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isSandboxed(SandboxFlags mask) const { return m_sandboxFlags & mask; }
+#pragma warning(pop)
 
     // Explicitly override the security origin for this security context.
     // Note: It is dangerous to change the security origin of a script context

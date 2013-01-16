@@ -52,7 +52,10 @@ public:
 class PlatformInstrumentation {
 public:
     static void setClient(PlatformInstrumentationClient*);
+#pragma warning(push)
+#pragma warning(disable:4800)
     static bool hasClient() { return m_client; }
+#pragma warning(pop)
 
     static void willDecodeImage(const String& imageType);
     static void didDecodeImage();

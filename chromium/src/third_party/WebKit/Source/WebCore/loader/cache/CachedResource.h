@@ -222,7 +222,10 @@ public:
 
     void setOwningCachedResourceLoader(CachedResourceLoader* cachedResourceLoader) { m_owningCachedResourceLoader = cachedResourceLoader; }
     
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isPreloaded() const { return m_preloadCount; }
+#pragma warning(pop)
     void increasePreloadCount() { ++m_preloadCount; }
     void decreasePreloadCount() { ASSERT(m_preloadCount); --m_preloadCount; }
     
@@ -231,7 +234,10 @@ public:
     
     bool canUseCacheValidator() const;
     bool mustRevalidateDueToCacheHeaders(CachePolicy) const;
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool isCacheValidator() const { return m_resourceToRevalidate; }
+#pragma warning(pop)
     CachedResource* resourceToRevalidate() const { return m_resourceToRevalidate; }
     
     bool isPurgeable() const;

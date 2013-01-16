@@ -45,6 +45,8 @@ public:
     {
     }
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool readOnly() const { return m_requestType & ReadOnly; }
     bool active() const { return m_requestType & Active; }
     bool move() const { return m_requestType & Move; }
@@ -58,6 +60,7 @@ public:
     // Convenience functions
     bool touchMove() const { return move() && touchEvent(); }
     bool touchRelease() const { return release() && touchEvent(); }
+#pragma warning(pop)
 
     HitTestRequestType type() const { return m_requestType; }
 

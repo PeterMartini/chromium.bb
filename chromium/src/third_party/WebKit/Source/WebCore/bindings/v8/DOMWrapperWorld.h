@@ -49,7 +49,10 @@ public:
     static const int uninitializedExtensionGroup = -1;
     // If uninitializedWorldId is passed as worldId, the world will be assigned a temporary id instead.
     static PassRefPtr<DOMWrapperWorld> ensureIsolatedWorld(int worldId, int extensionGroup);
+#pragma warning(push)
+#pragma warning(disable:4800)
     static bool isolatedWorldsExist() { return isolatedWorldCount; }
+#pragma warning(pop)
     static bool isIsolatedWorldId(int worldId) { return worldId != mainWorldId && worldId != uninitializedWorldId; }
     // Associates an isolated world (see above for description) with a security
     // origin. XMLHttpRequest instances used in that world will be considered

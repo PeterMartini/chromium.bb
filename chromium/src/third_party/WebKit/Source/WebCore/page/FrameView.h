@@ -199,7 +199,10 @@ public:
 
     void addSlowRepaintObject();
     void removeSlowRepaintObject();
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasSlowRepaintObjects() const { return m_slowRepaintObjectCount; }
+#pragma warning(pop)
 
     // Includes fixed- and sticky-position objects.
     typedef HashSet<RenderObject*> ViewportConstrainedObjectSet;
@@ -250,7 +253,10 @@ public:
     void setPaintBehavior(PaintBehavior);
     PaintBehavior paintBehavior() const;
     bool isPainting() const;
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasEverPainted() const { return m_lastPaintTime; }
+#pragma warning(pop)
     void setLastPaintTime(double lastPaintTime) { m_lastPaintTime = lastPaintTime; }
     void setNodeToDraw(Node*);
 
@@ -587,7 +593,10 @@ inline void FrameView::incrementVisuallyNonEmptyPixelCount(const IntSize& size)
 
 inline int FrameView::mapFromLayoutToCSSUnits(LayoutUnit value)
 {
+#pragma warning(push)
+#pragma warning(disable:4244)
     return value / (m_frame->pageZoomFactor() * m_frame->frameScaleFactor());
+#pragma warning(pop)
 }
 
 inline LayoutUnit FrameView::mapFromCSSToLayoutUnits(int value)

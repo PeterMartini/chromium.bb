@@ -1487,7 +1487,10 @@ public:
     void setWrapMargin(Length wrapMargin) { SET_VAR(rareNonInheritedData, m_wrapMargin, wrapMargin); }
     static Length initialWrapMargin() { return Length(0, Fixed); }
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool hasContent() const { return contentData(); }
+#pragma warning(pop)
     const ContentData* contentData() const { return rareNonInheritedData->m_content.get(); }
     bool contentDataEquivalent(const RenderStyle* otherStyle) const { return const_cast<RenderStyle*>(this)->rareNonInheritedData->contentDataEquivalent(*const_cast<RenderStyle*>(otherStyle)->rareNonInheritedData); }
     void clearContent();

@@ -80,10 +80,13 @@ public:
 
     Type type() const { return static_cast<Type>(m_type); }
 
+#pragma warning(push)
+#pragma warning(disable:4800)
     bool shiftKey() const { return m_modifiers & ShiftKey; }
     bool ctrlKey() const { return m_modifiers & CtrlKey; }
     bool altKey() const { return m_modifiers & AltKey; }
     bool metaKey() const { return m_modifiers & MetaKey; }
+#pragma warning(pop)
 
     unsigned modifiers() const { return m_modifiers; }
 
