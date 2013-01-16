@@ -995,6 +995,17 @@ void RenderText::computePreferredLogicalWidths(float leadWidth, HashSet<const Si
     bool breakNBSP = styleToUse->autoWrap() && styleToUse->nbspMode() == SPACE;
     bool breakAll = (styleToUse->wordBreak() == BreakAllWordBreak || styleToUse->wordBreak() == BreakWordBreak) && styleToUse->autoWrap();
 
+    // Set the length to 0 if the text is simply a new line. This will cause the for-loop to
+    // not run and so the minimum width and maximum width will remain 0.
+
+    // This is necessary for RenderBlock::LineBreaker::nextLineBreak to accurately calculate
+    // the minimum width of a line with a new line node at the end. Since it's a breakable
+    // character, we do not want to allocate some pixels (usually 4) if it's going to be the
+    // last character in the line. Doing so will either push the character offscreen or
+    // move the character to the next line, which will look very strange.
+    if (len == 1 && *txt == '\n')
+        len = 0;
+
     for (int i = 0; i < len; i++) {
         UChar c = characterAt(i);
 
