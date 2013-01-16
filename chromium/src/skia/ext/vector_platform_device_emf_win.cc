@@ -423,11 +423,13 @@ void VectorPlatformDeviceEmf::drawText(const SkDraw& draw,
   if (SkPaint::kUTF8_TextEncoding != paint.getTextEncoding()
       && setup.useGDI(hdc_, paint)) {
     UINT options = getTextOutOptions(paint);
+    int prevBkMode = SetBkMode(hdc_, TRANSPARENT);
     UINT count = byteLength >> 1;
     useDrawPath = !EnsureExtTextOut(hdc_, SkScalarRound(x),
         SkScalarRound(y + getAscent(paint)), options, 0,
         reinterpret_cast<const wchar_t*>(text), count, NULL,
         paint.getTypeface());
+    SetBkMode(hdc_, prevBkMode);
   }
 
   if (useDrawPath) {
