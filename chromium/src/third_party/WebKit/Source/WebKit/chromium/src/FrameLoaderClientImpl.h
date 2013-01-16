@@ -225,6 +225,9 @@ public:
     virtual void dispatchWillStartUsingPeerConnectionHandler(WebCore::RTCPeerConnectionHandler*) OVERRIDE;
 #endif
 
+    virtual void registerImgElement(WebCore::HTMLImageElement*) OVERRIDE;
+    virtual void unregisterImgElement(WebCore::HTMLImageElement*) OVERRIDE;
+
 private:
     void makeDocumentView();
 

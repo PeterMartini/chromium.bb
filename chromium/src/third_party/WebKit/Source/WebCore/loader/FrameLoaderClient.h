@@ -76,6 +76,7 @@ namespace WebCore {
     class HTMLAppletElement;
     class HTMLFormElement;
     class HTMLFrameOwnerElement;
+    class HTMLImageElement;
 #if ENABLE(PLUGIN_PROXY_FOR_VIDEO)
     class HTMLMediaElement;
 #endif
@@ -349,6 +350,9 @@ namespace WebCore {
 #if ENABLE(MEDIA_STREAM)
         virtual void dispatchWillStartUsingPeerConnectionHandler(RTCPeerConnectionHandler*) { }
 #endif
+
+        virtual void registerImgElement(HTMLImageElement*) { }
+        virtual void unregisterImgElement(HTMLImageElement*) { }
     };
 
 } // namespace WebCore

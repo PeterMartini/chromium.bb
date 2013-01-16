@@ -497,6 +497,12 @@ void CachedResource::removeClient(CachedResourceClient* client)
         didRemoveClient(client);
     }
 
+    if (!hasClients() && isLoading()) {
+        if (shouldCancelLoadingWithoutClients() && m_loader) {
+            m_loader->cancel();
+        }
+    }
+
     bool deleted = deleteIfPossible();
     if (!deleted && !hasClients() && inCache()) {
         memoryCache()->removeFromLiveResourcesSize(this);
