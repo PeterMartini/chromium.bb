@@ -1003,7 +1003,7 @@ void RenderText::computePreferredLogicalWidths(float leadWidth, HashSet<const Si
     // character, we do not want to allocate some pixels (usually 4) if it's going to be the
     // last character in the line. Doing so will either push the character offscreen or
     // move the character to the next line, which will look very strange.
-    if (len == 1 && *txt == '\n')
+    if (len == 1 && characterAt(0) == '\n')
         len = 0;
 
     for (int i = 0; i < len; i++) {
