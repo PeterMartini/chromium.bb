@@ -44,6 +44,11 @@ class BASE_EXPORT MessagePumpWin : public MessagePump {
   // Like MessagePump::Run, but MSG objects are routed through dispatcher.
   void RunWithDispatcher(Delegate* delegate, MessagePumpDispatcher* dispatcher);
 
+  // Reset the have-work flag. This is necessary for applications that handle
+  // the have-work flag and wants to reset it before scheduling another have-work
+  // task.
+  void ResetHaveWorkFlag();
+
   // MessagePump methods:
   virtual void Run(Delegate* delegate) { RunWithDispatcher(delegate, NULL); }
   virtual void Quit();
@@ -173,6 +178,15 @@ class BASE_EXPORT MessagePumpForUI : public MessagePumpWin {
   // messages.  This method will process all paint messages the Windows Message
   // queue can provide, up to some fixed number (to avoid any infinite loops).
   void PumpOutPendingPaintMessages();
+
+  // Applications can call this to change the pump window's message callback
+  // function.
+  void SetWindowProc(WNDPROC callback);
+
+  // Kills the timer used for running the next delayed task. This is necessary
+  // for applications that handle the window messages for the pump window and
+  // needs to reset the timer after handling a timer event.
+  void KillTimer();
 
  private:
   static LRESULT CALLBACK WndProcThunk(HWND window_handle,

@@ -66,6 +66,12 @@ void MessagePumpWin::RunWithDispatcher(
   state_ = previous_state;
 }
 
+void MessagePumpWin::ResetHaveWorkFlag() {
+  // Since we handled a kMsgHaveWork message, we must update the flag.
+  int old_have_work = InterlockedExchange(&have_work_, 0);
+  DCHECK(old_have_work);
+}
+
 void MessagePumpWin::Quit() {
   DCHECK(state_);
   state_->should_quit = true;
@@ -194,6 +200,16 @@ void MessagePumpForUI::PumpOutPendingPaintMessages() {
   DHISTOGRAM_COUNTS("Loop.PumpOutPendingPaintMessages Peeks", peek_count);
 }
 
+void MessagePumpForUI::SetWindowProc(WNDPROC callback)
+{
+	SetWindowLong(message_hwnd_, GWL_WNDPROC, (LONG) callback);
+}
+
+void MessagePumpForUI::KillTimer()
+{
+	::KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
+}
+
 //-----------------------------------------------------------------------------
 // MessagePumpForUI private:
 
@@ -249,7 +265,7 @@ void MessagePumpForUI::DoRunLoop() {
     // don't want to disturb that timer if it is already in flight.  However,
     // if we did do all remaining delayed work, then lets kill the WM_TIMER.
     if (more_work_is_plausible && delayed_work_time_.is_null())
-      KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
+      KillTimer();
     if (state_->should_quit)
       break;
 
@@ -338,7 +354,7 @@ void MessagePumpForUI::HandleWorkMessage() {
 }
 
 void MessagePumpForUI::HandleTimerMessage() {
-  KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
+  KillTimer();
 
   // If we are being called outside of the context of Run, then don't do
   // anything.  This could correspond to a MessageBox call or something of
@@ -432,8 +448,7 @@ bool MessagePumpForUI::ProcessPumpReplacementMessage() {
          msg.hwnd != message_hwnd_);
 
   // Since we discarded a kMsgHaveWork message, we must update the flag.
-  int old_have_work = InterlockedExchange(&have_work_, 0);
-  DCHECK(old_have_work);
+  ResetHaveWorkFlag();
 
   // We don't need a special time slice if we didn't have_message to process.
   if (!have_message)
