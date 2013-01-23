@@ -119,6 +119,8 @@ void MessagePumpForUI::ScheduleWork() {
   if (!MessageLoop::current() || !MessageLoop::current()->os_modal_loop()) {
       ret = PostMessage(message_hwnd_, kMsgHaveWork,
                          reinterpret_cast<WPARAM>(this), 0);
+  } else {
+	  InterlockedExchange(&have_work_, 0);
   }
 
   if (ret)
