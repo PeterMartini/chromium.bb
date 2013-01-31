@@ -2187,9 +2187,28 @@ void Editor::markAndReplaceFor(PassRefPtr<SpellCheckRequest> request, const Vect
             if (adjustSelectionForParagraphBoundaries)
                 m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
         } else {
-            // If this fails for any reason, the fallback is to go one position beyond the last replacement
-            m_frame->selection()->moveTo(m_frame->selection()->end());
-            m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
+            // When AsynchronousSpellCheckEnabled is on, extendedParagraph maybe reflects a state in the past.
+            // If we position the caret simply right after the end of the last replacement and user was typing rapidly, 
+            // it may mess up the caret position.
+            // The correct behavior should be to adjust the caret position based on the total difference in length between
+            // the replacement and the original text.  
+            // We achieve this by moving the caret to the end of extendedParagraph and then increment/decrement it to the
+            // right position.
+            bool asynchronous = m_frame && m_frame->settings() && m_frame->settings()->asynchronousSpellCheckingEnabled();
+            if (asynchronous && selectionOffset > extendedParagraph.rangeLength()) {
+                int offsetDiff = selectionOffset - extendedParagraph.rangeLength();
+                RefPtr<Range> paragraphRange = extendedParagraph.paragraphRange();
+                VisiblePosition pos(paragraphRange->endPosition());
+                for (int i = 0; i < offsetDiff; ++i) {
+                    pos = pos.next();
+                }
+                m_frame->selection()->moveTo(pos);
+                m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
+            } else {                
+                // If this fails for any reason, the fallback is to go one position beyond the last replacement
+                m_frame->selection()->moveTo(m_frame->selection()->end());
+                m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
+            }
         }
     }
 }
