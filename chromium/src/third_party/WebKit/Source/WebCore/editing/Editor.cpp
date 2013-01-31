@@ -2260,6 +2260,19 @@ void Editor::updateMarkersForWordsAffectedByEditing(bool doNotRemoveIfSelectionA
     // First word is the word that ends after or on the start of selection.
     VisiblePosition startOfFirstWord = startOfWord(startOfSelection, LeftWordIfOnBoundary);
     VisiblePosition endOfFirstWord = endOfWord(startOfSelection, LeftWordIfOnBoundary);
+    
+    // startOfWord does not handle apostrophe correctly and considers it as a word break.
+    // When typing 't' after "shouldn'" which is marked already, the marker isn't removed.
+    if (unifiedTextCheckerEnabled()) {
+        while (startOfFirstWord.characterAfter() == '\'') {
+            VisiblePosition previousWordBlock = startOfWord(startOfFirstWord, LeftWordIfOnBoundary)
+            if (previousWordBlock == startOfFirstWord) {
+                break;
+            }
+            startOfFirstWord = previousWordBlock;
+        }
+    }
+
     // Last word is the word that begins before or on the end of selection
     VisiblePosition startOfLastWord = startOfWord(endOfSelection, RightWordIfOnBoundary);
     VisiblePosition endOfLastWord = endOfWord(endOfSelection, RightWordIfOnBoundary);
