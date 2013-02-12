@@ -2265,7 +2265,7 @@ void Editor::updateMarkersForWordsAffectedByEditing(bool doNotRemoveIfSelectionA
     // When typing 't' after "shouldn'" which is marked already, the marker isn't removed.
     if (unifiedTextCheckerEnabled()) {
         while (startOfFirstWord.characterAfter() == '\'') {
-            VisiblePosition previousWordBlock = startOfWord(startOfFirstWord, LeftWordIfOnBoundary)
+            VisiblePosition previousWordBlock = startOfWord(startOfFirstWord, LeftWordIfOnBoundary);
             if (previousWordBlock == startOfFirstWord) {
                 break;
             }
