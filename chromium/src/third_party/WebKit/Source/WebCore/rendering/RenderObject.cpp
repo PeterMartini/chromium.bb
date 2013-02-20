@@ -122,6 +122,38 @@ bool RenderObject::s_affectsParentBlock = false;
 
 RenderObjectAncestorLineboxDirtySet* RenderObject::s_ancestorLineboxDirtySet = 0;
 
+std::vector<LayoutTimeStamp*> *g_layoutTimeStamp = NULL;
+void (*g_startLayoutDebugFunc)(void) = NULL;
+void (*g_endLayoutDebugFunc)(void) = NULL;
+
+LayoutTimeStampScope::LayoutTimeStampScope(RenderObject *obj)
+{
+    if (g_layoutTimeStamp) {
+        Element *elem = static_cast<Element *>(obj->node());
+        const ElementAttributeData *data = elem ? elem->attributeData() : NULL;
+        String name("");
+
+        if (elem && obj->node()->nodeType() != Node::DOCUMENT_NODE) {
+            name = elem->getAttribute("data-name").string();
+        }
+
+        d_item = 
+            new LayoutTimeStamp(
+            obj, obj->parent(), obj->isAnonymous() ? "<ANONYMOUS>" : obj->node()->nodeName(),
+            data && data->hasID() ? data->idForStyleResolution().string() : "<NULL>",
+            name, obj->renderName(), 0);
+        d_startTime = WTF::monotonicallyIncreasingTime();
+    }
+}
+
+LayoutTimeStampScope::~LayoutTimeStampScope()
+{
+    if (g_layoutTimeStamp) {
+        d_item->duration = WTF::monotonicallyIncreasingTime() - d_startTime;
+        g_layoutTimeStamp->push_back(d_item);
+    }
+}
+
 void* RenderObject::operator new(size_t sz, RenderArena* renderArena)
 {
     return renderArena->allocate(sz);

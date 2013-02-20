@@ -222,6 +222,8 @@ void RenderSVGRoot::layout()
     StackStats::LayoutCheckPoint layoutCheckPoint;
     ASSERT(needsLayout());
 
+    LayoutTimeStampScope timestampScope(this);
+
     m_resourcesNeedingToInvalidateClients.clear();
 
     // Arbitrary affine transforms are incompatible with LayoutState.

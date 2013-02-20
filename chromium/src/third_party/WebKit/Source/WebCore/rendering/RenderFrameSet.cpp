@@ -464,6 +464,8 @@ void RenderFrameSet::layout()
     StackStats::LayoutCheckPoint layoutCheckPoint;
     ASSERT(needsLayout());
 
+    LayoutTimeStampScope timestampScope(this);
+
     bool doFullRepaint = selfNeedsLayout() && checkForRepaintDuringLayout();
     LayoutRect oldBounds;
     RenderLayerModelObject* repaintContainer = 0;

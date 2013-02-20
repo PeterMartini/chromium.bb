@@ -40,6 +40,7 @@
 #include "webkit/tools/test_shell/test_shell_request_context.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 #include "webkit/tools/test_shell/test_shell_webkit_init.h"
+#include <sstream>
 
 #if defined(OS_WIN)
 #pragma warning(disable: 4996)
@@ -67,10 +68,59 @@ void RemoveSharedMemoryFile(std::string& filename) {
 
 }  // namespace
 
+namespace WebCore {
+    struct LayoutTimeStamp;
+}
+
+namespace WebKit {
+    WEBKIT_EXPORT std::vector<WebCore::LayoutTimeStamp*>* getLayoutTimeStampVector();
+    WEBKIT_EXPORT void setLayoutTimeStampVector(std::vector<WebCore::LayoutTimeStamp*>*);
+    WEBKIT_EXPORT void setLayoutDebugStartEndFuncs(void(*)(), void(*)());
+    WEBKIT_EXPORT void printLayoutTimeStamp(std::wostream&, WebCore::LayoutTimeStamp*);
+    WEBKIT_EXPORT void deleteLayoutTimeStamp(WebCore::LayoutTimeStamp*);
+}
+
+typedef std::vector<WebCore::LayoutTimeStamp*> LayoutTimeStampVec;
+
+void endLayoutDebug() {
+    LayoutTimeStampVec* layoutTimeStamps = WebKit::getLayoutTimeStampVector();
+
+    if (!layoutTimeStamps || layoutTimeStamps->empty()) {
+        return;
+    }
+
+    // print out the result
+    std::wstringstream ss;
+
+    for(int i = 0, len = layoutTimeStamps->size() ; i < len; i++) {
+        WebCore::LayoutTimeStamp *item = layoutTimeStamps->at(i);
+        ss.str(L"");
+        WebKit::printLayoutTimeStamp(ss, item);
+        WebKit::deleteLayoutTimeStamp(item);
+        OutputDebugStringW(ss.str().c_str());
+        OutputDebugStringW(L"\n");
+    }
+
+    // layoutTimeStamps->clear();
+    delete layoutTimeStamps;
+    WebKit::setLayoutTimeStampVector(NULL);
+}
+
+void startLayoutDebug() {
+    if (WebKit::getLayoutTimeStampVector()) {
+        endLayoutDebug();
+    }
+    WebKit::setLayoutTimeStampVector(new std::vector<WebCore::LayoutTimeStamp*>());
+}
+
+
 int main(int argc, char* argv[]) {
   base::debug::EnableInProcessStackDumping();
   base::EnableTerminationOnHeapCorruption();
 
+  //NOTE: uncomment the following line to enable layout profiling
+  //WebKit::setLayoutDebugStartEndFuncs(startLayoutDebug, endLayoutDebug);
+  
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;

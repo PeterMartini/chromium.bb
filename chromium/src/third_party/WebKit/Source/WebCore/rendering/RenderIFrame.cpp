@@ -149,6 +149,7 @@ void RenderIFrame::layout()
 {
     StackStats::LayoutCheckPoint layoutCheckPoint;
     ASSERT(needsLayout());
+    LayoutTimeStampScope timestampScope(this);
 
     if (isSeamless()) {
         layoutSeamlessly();

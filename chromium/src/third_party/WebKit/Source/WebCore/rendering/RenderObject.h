@@ -41,6 +41,8 @@
 #include <wtf/HashSet.h>
 #include <wtf/StackStats.h>
 #include <wtf/UnusedParam.h>
+#include <wtf/CurrentTime.h>
+#include <vector>
 
 namespace WebCore {
 
@@ -140,6 +142,46 @@ struct AnnotatedRegionValue {
 #endif
 };
 #endif
+
+struct LayoutTimeStamp {
+    RenderObject *current;
+    RenderObject *parent;
+    String        tag;
+    String        id;
+    String        name;
+    const char*   renderName;
+    double        duration;
+
+    LayoutTimeStamp(RenderObject *current, RenderObject *parent,
+                    String tag, String id, String name, 
+                    const char* renderName, double duration)
+                    : current(current)
+                    , parent(parent)
+                    , tag(tag)
+                    , id(id)
+                    , name(name)
+                    , renderName(renderName)
+                    , duration(duration)
+    {}
+};
+
+class LayoutTimeStampScope {
+    // INSTANCE DATA
+    LayoutTimeStamp* d_item;
+    double           d_startTime;
+
+private:
+    // NOT IMPLEMENTED
+    LayoutTimeStampScope(const LayoutTimeStampScope&);
+    LayoutTimeStampScope& operator=(const LayoutTimeStampScope&);
+
+public:
+    // CREATORS
+    LayoutTimeStampScope(RenderObject *item);
+    ~LayoutTimeStampScope();
+};
+
+
 
 typedef WTF::HashSet<const RenderObject*> RenderObjectAncestorLineboxDirtySet;
 

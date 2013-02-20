@@ -236,6 +236,8 @@ void RenderEmbeddedObject::layout()
 {
     StackStats::LayoutCheckPoint layoutCheckPoint;
     ASSERT(needsLayout());
+    
+    LayoutTimeStampScope timestampScope(this);
 
 #if ENABLE(PLUGIN_PROXY_FOR_VIDEO)
     LayoutSize oldSize = contentBoxRect().size();
