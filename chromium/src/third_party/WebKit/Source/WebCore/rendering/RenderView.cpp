@@ -610,7 +610,7 @@ void RenderView::setSelection(RenderObject* start, int startPos, RenderObject* e
     // Blocks contain selected objects and fill gaps between them, either on the left, right, or in between lines and blocks.
     // In order to get the repaint rect right, we have to examine left, middle, and right rects individually, since otherwise
     // the union of those rects might remain the same even when changes have occurred.
-    typedef HashMap<RenderBlock*, OwnPtr<RenderBlockSelectionInfo> > SelectedBlockMap;
+    typedef HashMap<RenderBlock*, OwnPtr<RenderSelectionInfo> > SelectedBlockMap;
     SelectedBlockMap oldSelectedBlocks;
     SelectedBlockMap newSelectedBlocks;
 
@@ -623,10 +623,10 @@ void RenderView::setSelection(RenderObject* start, int startPos, RenderObject* e
             if (blockRepaintMode == RepaintNewXOROld) {
                 RenderBlock* cb = os->containingBlock();
                 while (cb && !cb->isRenderView()) {
-                    OwnPtr<RenderBlockSelectionInfo>& blockInfo = oldSelectedBlocks.add(cb, nullptr).iterator->value;
+                    OwnPtr<RenderSelectionInfo>& blockInfo = oldSelectedBlocks.add(cb, nullptr).iterator->value;
                     if (blockInfo)
                         break;
-                    blockInfo = adoptPtr(new RenderBlockSelectionInfo(cb));
+                    blockInfo = adoptPtr(new RenderSelectionInfo(cb, true));
                     cb = cb->containingBlock();
                 }
             }
@@ -676,10 +676,10 @@ void RenderView::setSelection(RenderObject* start, int startPos, RenderObject* e
             newSelectedObjects.set(o, adoptPtr(new RenderSelectionInfo(o, true)));
             RenderBlock* cb = o->containingBlock();
             while (cb && !cb->isRenderView()) {
-                OwnPtr<RenderBlockSelectionInfo>& blockInfo = newSelectedBlocks.add(cb, nullptr).iterator->value;
+                OwnPtr<RenderSelectionInfo>& blockInfo = newSelectedBlocks.add(cb, nullptr).iterator->value;
                 if (blockInfo)
                     break;
-                blockInfo = adoptPtr(new RenderBlockSelectionInfo(cb));
+                blockInfo = adoptPtr(new RenderSelectionInfo(cb, true));
                 cb = cb->containingBlock();
             }
         }
@@ -717,9 +717,9 @@ void RenderView::setSelection(RenderObject* start, int startPos, RenderObject* e
     SelectedBlockMap::iterator oldBlocksEnd = oldSelectedBlocks.end();
     for (SelectedBlockMap::iterator i = oldSelectedBlocks.begin(); i != oldBlocksEnd; ++i) {
         RenderBlock* block = i->key;
-        RenderBlockSelectionInfo* newInfo = newSelectedBlocks.get(block);
-        RenderBlockSelectionInfo* oldInfo = i->value.get();
-        if (!newInfo || oldInfo->rects() != newInfo->rects() || oldInfo->state() != newInfo->state()) {
+        RenderSelectionInfo* newInfo = newSelectedBlocks.get(block);
+        RenderSelectionInfo* oldInfo = i->value.get();
+        if (!newInfo || oldInfo->rect() != newInfo->rect() || oldInfo->state() != newInfo->state()) {
             oldInfo->repaint();
             if (newInfo) {
                 newInfo->repaint();
