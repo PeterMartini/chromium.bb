@@ -77,6 +77,7 @@ namespace WebCore {
     class HTMLAppletElement;
     class HTMLFormElement;
     class HTMLFrameOwnerElement;
+    class HTMLImageElement;
 #if ENABLE(PLUGIN_PROXY_FOR_VIDEO)
     class HTMLMediaElement;
 #endif
@@ -340,6 +341,9 @@ namespace WebCore {
 
         // Returns true if the embedder intercepted the postMessage call
         virtual bool willCheckAndDispatchMessageEvent(SecurityOrigin* /*target*/, MessageEvent*) const { return false; }
+
+        virtual void registerImgElement(HTMLImageElement*) { }
+        virtual void unregisterImgElement(HTMLImageElement*) { }
 
         virtual void didChangeName(const String&) { }
 

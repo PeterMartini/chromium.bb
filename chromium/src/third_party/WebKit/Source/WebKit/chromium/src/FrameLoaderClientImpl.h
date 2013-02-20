@@ -207,6 +207,9 @@ public:
     virtual void didNotAllowScript();
     virtual void didNotAllowPlugins();
 
+    virtual void registerImgElement(WebCore::HTMLImageElement*) OVERRIDE;
+    virtual void unregisterImgElement(WebCore::HTMLImageElement*) OVERRIDE;
+
     virtual PassRefPtr<WebCore::FrameNetworkingContext> createNetworkingContext();
     virtual bool willCheckAndDispatchMessageEvent(WebCore::SecurityOrigin* target, WebCore::MessageEvent*) const;
     virtual void didChangeName(const String&);

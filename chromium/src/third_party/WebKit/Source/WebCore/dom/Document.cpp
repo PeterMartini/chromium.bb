@@ -4169,6 +4169,26 @@ void Document::unregisterForPrivateBrowsingStateChangedCallbacks(Element* e)
     m_privateBrowsingStateChangedElements.remove(e);
 }
 
+void Document::registerImgElement(HTMLImageElement* imgElement)
+{
+    if (m_frame && m_frame->loader()) {
+        FrameLoaderClient* client = m_frame->loader()->client();
+        if (client) {
+            client->registerImgElement(imgElement);
+        }
+    }
+}
+
+void Document::unregisterImgElement(HTMLImageElement* imgElement)
+{
+    if (m_frame && m_frame->loader()) {
+        FrameLoaderClient* client = m_frame->loader()->client();
+        if (client) {
+            client->unregisterImgElement(imgElement);
+        }
+    }
+}
+
 void Document::setShouldCreateRenderers(bool f)
 {
     m_createRenderers = f;

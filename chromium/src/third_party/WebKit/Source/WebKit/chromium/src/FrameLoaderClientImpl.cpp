@@ -43,6 +43,7 @@
 #include "FrameView.h"
 #include "HTMLAppletElement.h"
 #include "HTMLFormElement.h"  // needed by FormState.h
+#include "HTMLImageElement.h"
 #include "HTMLNames.h"
 #include "HTTPParsers.h"
 #include "HistoryItem.h"
@@ -263,6 +264,22 @@ void FrameLoaderClientImpl::didNotAllowPlugins()
     if (webview && webview->permissionClient())
         webview->permissionClient()->didNotAllowPlugins(m_webFrame);
 
+}
+
+void FrameLoaderClientImpl::registerImgElement(WebCore::HTMLImageElement* imgElement)
+{
+    if (m_webFrame && m_webFrame->client()) {
+        WebElement webElement(imgElement);
+        m_webFrame->client()->registerImgElement(&webElement);
+    }
+}
+
+void FrameLoaderClientImpl::unregisterImgElement(WebCore::HTMLImageElement* imgElement)
+{
+    if (m_webFrame && m_webFrame->client()) {
+        WebElement webElement(imgElement);
+        m_webFrame->client()->unregisterImgElement(&webElement);
+    }
 }
 
 bool FrameLoaderClientImpl::hasWebView() const

@@ -56,6 +56,7 @@ class WebDataSource;
 class WebDOMEvent;
 class WebFormElement;
 class WebFrame;
+class WebElement;
 class WebIntent;
 class WebIntentRequest;
 class WebIntentServiceInfo;
@@ -395,6 +396,11 @@ public:
         WebFrame*, WebStorageQuotaType,
         unsigned long long newQuotaInBytes,
         WebStorageQuotaCallbacks*) { }
+
+    // Image elements registration ------------------------------------
+
+    virtual void registerImgElement(WebElement*) { }
+    virtual void unregisterImgElement(WebElement*) { }
 
     // Web Intents ---------------------------------------------------
 

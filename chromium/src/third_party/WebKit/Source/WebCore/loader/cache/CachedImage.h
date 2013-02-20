@@ -81,6 +81,9 @@ public:
     // For compatibility, images keep loading even if there are HTTP errors.
     virtual bool shouldIgnoreHTTPStatusCodeErrors() const { return true; }
 
+    virtual bool shouldCancelLoadingWithoutClients() const { return m_shouldCancelLoadingWithoutClients; }
+    void setShouldCancelLoadingWithoutClients(bool val) { m_shouldCancelLoadingWithoutClients = val; }
+
     virtual bool isImage() const { return true; }
     virtual bool stillNeedsLoad() const OVERRIDE { return !errorOccurred() && status() == Unknown && !isLoading(); }
 
@@ -112,6 +115,7 @@ private:
     OwnPtr<SVGImageCache> m_svgImageCache;
 #endif
     bool m_shouldPaintBrokenImage;
+    bool m_shouldCancelLoadingWithoutClients;
 };
 
 }
