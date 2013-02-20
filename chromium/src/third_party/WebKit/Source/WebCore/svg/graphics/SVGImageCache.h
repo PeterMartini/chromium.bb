@@ -23,6 +23,7 @@
 #if ENABLE(SVG)
 #include "Image.h"
 #include "IntSize.h"
+#include "FloatSize.h"
 #include "Timer.h"
 #include <wtf/HashMap.h>
 #include <wtf/PassOwnPtr.h>
@@ -49,11 +50,11 @@ public:
     struct SizeAndScales {
         SizeAndScales()
             : zoom(1)
-            , scale(0)
+            , scale(0, 0)
         {
         }
 
-        SizeAndScales(const IntSize& newSize, float newZoom, float newScale)
+        SizeAndScales(const IntSize& newSize, float newZoom, const FloatSize& newScale)
             : size(newSize)
             , zoom(newZoom)
             , scale(newScale)
@@ -63,13 +64,13 @@ public:
         SizeAndScales(const IntSize& newSize, float newZoom)
             : size(newSize)
             , zoom(newZoom)
-            , scale(0)
+            , scale(0, 0)
         {
         }
 
         IntSize size;
         float zoom;
-        float scale; // A scale of 0 indicates that the default scale should be used.
+        FloatSize scale; // An empty scale indicates that the default scale should be used.
     };
 
     void removeClientFromCache(const CachedImageClient*);
