@@ -26,7 +26,6 @@
 
 // SHEZ: not sure if these two are needed, but add them just in case
 #include "TransformationMatrix.h"
-#include "LayoutTypes.h"
 #include "RenderBox.h"
 
 #include "BitmapImage.h"
