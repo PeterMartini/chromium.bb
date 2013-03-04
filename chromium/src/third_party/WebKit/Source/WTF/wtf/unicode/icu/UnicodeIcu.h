@@ -170,6 +170,11 @@ inline bool isAlphanumeric(UChar32 c)
     return u_isalnum(c);
 }
 
+inline bool isSpace(UChar32 c)
+{
+    return !!u_isWhitespace(c);
+}
+
 inline bool isSeparatorSpace(UChar32 c)
 {
     return u_charType(c) == U_SPACE_SEPARATOR;

@@ -573,9 +573,14 @@ VisiblePosition FrameSelection::modifyExtendingRight(TextGranularity granularity
             pos = pos.previous(CannotCrossEditingBoundary);
         break;
     case WordGranularity:
-        if (directionOfEnclosingBlock() == LTR)
+        if (directionOfEnclosingBlock() == LTR) {
+#if PLATFORM(MAC)
             pos = nextWordPosition(pos);
-        else
+#else
+            bool skipsSpaceWhenMovingForward = m_frame && m_frame->editor()->behavior().shouldSkipSpaceWhenMovingRight();
+            pos = nextWordPosition(pos, skipsSpaceWhenMovingForward);
+#endif
+        } else
             pos = previousWordPosition(pos);
         break;
     case LineBoundary:
@@ -604,9 +609,15 @@ VisiblePosition FrameSelection::modifyExtendingForward(TextGranularity granulari
     case CharacterGranularity:
         pos = pos.next(CannotCrossEditingBoundary);
         break;
-    case WordGranularity:
+    case WordGranularity: {
+#if PLATFORM(MAC)
         pos = nextWordPosition(pos);
+#else
+        bool skipsSpaceWhenMovingForward = m_frame && m_frame->editor()->behavior().shouldSkipSpaceWhenMovingRight();
+        pos = nextWordPosition(pos, skipsSpaceWhenMovingForward);
+#endif
         break;
+    }
     case SentenceGranularity:
         pos = nextSentencePosition(pos);
         break;
@@ -686,9 +697,15 @@ VisiblePosition FrameSelection::modifyMovingForward(TextGranularity granularity)
         else
             pos = VisiblePosition(m_selection.extent(), m_selection.affinity()).next(CannotCrossEditingBoundary);
         break;
-    case WordGranularity:
+    case WordGranularity: {
+#if PLATFORM(MAC)
         pos = nextWordPosition(VisiblePosition(m_selection.extent(), m_selection.affinity()));
+#else
+        bool skipsSpaceWhenMovingForward = m_frame && m_frame->editor()->behavior().shouldSkipSpaceWhenMovingRight();
+        pos = nextWordPosition(VisiblePosition(m_selection.extent(), m_selection.affinity()), skipsSpaceWhenMovingForward);
+#endif
         break;
+    }
     case SentenceGranularity:
         pos = nextSentencePosition(VisiblePosition(m_selection.extent(), m_selection.affinity()));
         break;
@@ -742,8 +759,14 @@ VisiblePosition FrameSelection::modifyExtendingLeft(TextGranularity granularity)
     case WordGranularity:
         if (directionOfEnclosingBlock() == LTR)
             pos = previousWordPosition(pos);
-        else
+        else {
+#if PLATFORM(MAC)
             pos = nextWordPosition(pos);
+#else
+            bool skipsSpaceWhenMovingForward = m_frame && m_frame->editor()->behavior().shouldSkipSpaceWhenMovingRight();
+            pos = nextWordPosition(pos, skipsSpaceWhenMovingForward);
+#endif
+        }
         break;
     case LineBoundary:
         if (directionOfEnclosingBlock() == LTR)

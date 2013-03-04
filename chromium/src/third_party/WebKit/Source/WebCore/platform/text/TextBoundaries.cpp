@@ -62,16 +62,17 @@ int startOfLastWordBoundaryContext(const UChar* characters, int length)
 
 #if !PLATFORM(MAC) && !PLATFORM(QT)
 
-int findNextWordFromIndex(const UChar* chars, int len, int position, bool forward)
+int findNextWordFromIndex(const UChar* chars, int len, int position, bool forward, bool skipSpaces)
 {
     TextBreakIterator* it = wordBreakIterator(chars, len);
 
     if (forward) {
         position = textBreakFollowing(it, position);
         while (position != TextBreakDone) {
-            // We stop searching when the character preceeding the break
-            // is alphanumeric.
-            if (position < len && isAlphanumeric(chars[position - 1]))
+            // If we are are not skipping spaces, we stop searching
+            // when the character preceeding the break is a
+            // space. Otherwise, when it is alphanumeric.
+            if (position < len && skipSpaces ? isSpace(chars[position - 1]) : isAlphanumeric(chars[position - 1]))
                 return position;
 
             position = textBreakFollowing(it, position);
@@ -81,9 +82,10 @@ int findNextWordFromIndex(const UChar* chars, int len, int position, bool forwar
     } else {
         position = textBreakPreceding(it, position);
         while (position != TextBreakDone) {
-            // We stop searching when the character following the break
-            // is alphanumeric.
-            if (position > 0 && isAlphanumeric(chars[position]))
+            // If we are are not skipping spaces, we stop searching
+            // when the character after the break is one. Otherwise,
+            // when it is alphanumeric.
+            if (position > 0 && skipSpaces ? isSpace(chars[position - 1]) : isAlphanumeric(chars[position]))
                 return position;
 
             position = textBreakPreceding(it, position);
@@ -91,6 +93,11 @@ int findNextWordFromIndex(const UChar* chars, int len, int position, bool forwar
 
         return 0;
     }
+}
+
+int findNextWordFromIndex(const UChar* chars, int len, int position, bool forward)
+{
+    return findNextWordFromIndex(chars, len, position, forward, false);
 }
 
 void findWordBoundary(const UChar* chars, int len, int position, int* start, int* end)

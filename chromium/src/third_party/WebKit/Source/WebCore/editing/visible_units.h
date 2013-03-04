@@ -43,6 +43,9 @@ VisiblePosition startOfWord(const VisiblePosition &, EWordSide = RightWordIfOnBo
 VisiblePosition endOfWord(const VisiblePosition &, EWordSide = RightWordIfOnBoundary);
 VisiblePosition previousWordPosition(const VisiblePosition &);
 VisiblePosition nextWordPosition(const VisiblePosition &);
+#if !PLATFORM(MAC)
+VisiblePosition nextWordPosition(const VisiblePosition &, bool skipSppacing);
+#endif
 VisiblePosition rightWordPosition(const VisiblePosition&, bool skipsSpaceWhenMovingRight);
 VisiblePosition leftWordPosition(const VisiblePosition&, bool skipsSpaceWhenMovingRight);
 bool isStartOfWord(const VisiblePosition&);

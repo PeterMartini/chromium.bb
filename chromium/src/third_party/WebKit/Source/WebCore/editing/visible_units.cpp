@@ -685,6 +685,18 @@ VisiblePosition previousWordPosition(const VisiblePosition &c)
     return c.honorEditingBoundaryAtOrBefore(prev);
 }
 
+#if !PLATFORM(MAC)
+static unsigned nextWordPositionBoundarySkippingSpaces(const UChar* characters, unsigned length, unsigned offset, BoundarySearchContextAvailability mayHaveMoreContext, bool& needMoreContext)
+{
+    if (mayHaveMoreContext && endOfFirstWordBoundaryContext(characters + offset, length - offset) == static_cast<int>(length - offset)) {
+        needMoreContext = true;
+        return length;
+    }
+    needMoreContext = false;
+    return findNextWordFromIndex(characters, length, offset, true, true);
+}
+#endif
+
 static unsigned nextWordPositionBoundary(const UChar* characters, unsigned length, unsigned offset, BoundarySearchContextAvailability mayHaveMoreContext, bool& needMoreContext)
 {
     if (mayHaveMoreContext && endOfFirstWordBoundaryContext(characters + offset, length - offset) == static_cast<int>(length - offset)) {
@@ -700,6 +712,15 @@ VisiblePosition nextWordPosition(const VisiblePosition &c)
     VisiblePosition next = nextBoundary(c, nextWordPositionBoundary);    
     return c.honorEditingBoundaryAtOrAfter(next);
 }
+
+// Mac has no skipping spaces implementation. */
+#if !PLATFORM(MAC)
+VisiblePosition nextWordPosition(const VisiblePosition &c, bool skipSpacing)
+{
+    VisiblePosition next = nextBoundary(c, skipSpacing ? nextWordPositionBoundarySkippingSpaces : nextWordPositionBoundary);
+    return c.honorEditingBoundaryAtOrAfter(next);
+}
+#endif
 
 bool isStartOfWord(const VisiblePosition& p)
 {
