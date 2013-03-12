@@ -2149,21 +2149,21 @@ void Editor::markAndReplaceFor(PassRefPtr<SpellCheckRequest> request, const Vect
                     m_alternativeTextController->markCorrection(paragraph.subrange(resultLocation, replacementLength), replacedString);
             }
         }
-    }
 
-    if (selectionChanged) {
-        TextCheckingParagraph extendedParagraph(paragraph);
-        // Restore the caret position if we have made any replacements
-        extendedParagraph.expandRangeToNextEnd();
-        if (restoreSelectionAfterChange && selectionOffset >= 0 && selectionOffset <= extendedParagraph.rangeLength()) {
-            RefPtr<Range> selectionRange = extendedParagraph.subrange(0, selectionOffset);
-            m_frame->selection()->moveTo(selectionRange->endPosition(), DOWNSTREAM);
-            if (adjustSelectionForParagraphBoundaries)
-                m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
-        } else {
-            // If this fails for any reason, the fallback is to go one position beyond the last replacement
-            m_frame->selection()->moveTo(m_frame->selection()->end());
-            m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
+        if (selectionChanged) {
+            TextCheckingParagraph extendedParagraph(paragraph);
+            // Restore the caret position if we have made any replacements
+            extendedParagraph.expandRangeToNextEnd();
+            if (restoreSelectionAfterChange && selectionOffset >= 0 && selectionOffset <= extendedParagraph.rangeLength()) {
+	            RefPtr<Range> selectionRange = extendedParagraph.subrange(0, selectionOffset);
+	            m_frame->selection()->moveTo(selectionRange->endPosition(), DOWNSTREAM);
+	            if (adjustSelectionForParagraphBoundaries)
+		            m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
+            } else {
+	            // If this fails for any reason, the fallback is to go one position beyond the last replacement
+	            m_frame->selection()->moveTo(m_frame->selection()->end());
+	            m_frame->selection()->modify(FrameSelection::AlterationMove, DirectionForward, CharacterGranularity);
+            }
         }
     }
 }
