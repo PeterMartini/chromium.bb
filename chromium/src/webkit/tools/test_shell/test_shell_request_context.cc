@@ -58,21 +58,23 @@ class TestShellHttpUserAgentSettings : public net::HttpUserAgentSettings {
 
 TestShellRequestContext::TestShellRequestContext()
     : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)) {
-  Init(base::FilePath(), net::HttpCache::NORMAL, false);
+  Init(base::FilePath(), net::HttpCache::NORMAL, false, NULL);
 }
 
 TestShellRequestContext::TestShellRequestContext(
     const base::FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
-    bool no_proxy)
+    bool no_proxy,
+    net::ProxyConfigService* proxy_config_service_to_own)
     : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)) {
-  Init(cache_path, cache_mode, no_proxy);
+  Init(cache_path, cache_mode, no_proxy, proxy_config_service_to_own);
 }
 
 void TestShellRequestContext::Init(
     const base::FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
-    bool no_proxy) {
+    bool no_proxy,
+    net::ProxyConfigService* proxy_config_service_to_own) {
   storage_.set_cookie_store(new net::CookieMonster(NULL, NULL));
   storage_.set_server_bound_cert_service(new net::ServerBoundCertService(
       new net::DefaultServerBoundCertStore(NULL),
@@ -80,9 +82,28 @@ void TestShellRequestContext::Init(
 
   storage_.set_http_user_agent_settings(new TestShellHttpUserAgentSettings);
 
-  // Use no proxy; it's not needed for testing and just breaks things.
   scoped_ptr<net::ProxyConfigService> proxy_config_service(
-      new net::ProxyConfigServiceFixed(net::ProxyConfig()));
+      proxy_config_service_to_own);
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+  // Use no proxy to avoid ProxyConfigServiceLinux.
+  // Enabling use of the ProxyConfigServiceLinux requires:
+  // -Calling from a thread with a TYPE_UI MessageLoop,
+  // -If at all possible, passing in a pointer to the IO thread's MessageLoop,
+  // -Keep in mind that proxy auto configuration is also
+  //  non-functional on linux in this context because of v8 threading
+  //  issues.
+  // TODO(port): rename "linux" to some nonspecific unix.
+  if (!proxy_config_service.get()) {
+      proxy_config_service.reset(new net::ProxyConfigServiceFixed(net::ProxyConfig()));
+  }
+#else
+  // Use the system proxy settings.
+  if (!proxy_config_service.get()) {
+      proxy_config_service.reset(
+          net::ProxyService::CreateSystemProxyConfigService(
+              base::ThreadTaskRunnerHandle::Get(), NULL));
+  }
+#endif
 
   storage_.set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
   storage_.set_cert_verifier(net::CertVerifier::CreateDefault());

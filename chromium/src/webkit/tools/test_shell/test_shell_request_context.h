@@ -22,6 +22,10 @@ namespace webkit_blob {
 class BlobStorageController;
 }
 
+namespace net {
+class ProxyConfigService;
+}
+
 // A basic net::URLRequestContext that only provides an in-memory cookie store.
 class TestShellRequestContext : public net::URLRequestContext {
  public:
@@ -32,7 +36,8 @@ class TestShellRequestContext : public net::URLRequestContext {
   // in playback or record mode.
   TestShellRequestContext(const base::FilePath& cache_path,
                           net::HttpCache::Mode cache_mode,
-                          bool no_proxy);
+                          bool no_proxy,
+                          net::ProxyConfigService* proxy_config_service_to_own);
 
   virtual ~TestShellRequestContext();
 
@@ -46,7 +51,8 @@ class TestShellRequestContext : public net::URLRequestContext {
 
  private:
   void Init(const base::FilePath& cache_path, net::HttpCache::Mode cache_mode,
-            bool no_proxy);
+            bool no_proxy,
+            net::ProxyConfigService* proxy_config_service_to_own);
 
   net::URLRequestContextStorage storage_;
   scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;

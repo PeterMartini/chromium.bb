@@ -95,14 +95,17 @@ struct TestShellRequestContextParams {
   TestShellRequestContextParams(
       const base::FilePath& in_cache_path,
       net::HttpCache::Mode in_cache_mode,
-      bool in_no_proxy)
+      bool in_no_proxy,
+      net::ProxyConfigService* in_proxy_config_service_ptr)
       : cache_path(in_cache_path),
         cache_mode(in_cache_mode),
-        no_proxy(in_no_proxy) {}
+        no_proxy(in_no_proxy),
+        proxy_config_service_ptr(in_proxy_config_service_ptr) {}
 
   base::FilePath cache_path;
   net::HttpCache::Mode cache_mode;
   bool no_proxy;
+  net::ProxyConfigService* proxy_config_service_ptr;
 };
 
 //-----------------------------------------------------------------------------
@@ -261,7 +264,8 @@ class IOThread : public base::Thread {
       g_request_context = new TestShellRequestContext(
           g_request_context_params->cache_path,
           g_request_context_params->cache_mode,
-          g_request_context_params->no_proxy);
+          g_request_context_params->no_proxy,
+          g_request_context_params->proxy_config_service_ptr);
       delete g_request_context_params;
       g_request_context_params = NULL;
     } else {
@@ -1029,7 +1033,8 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
 void SimpleResourceLoaderBridge::Init(
     const base::FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
-    bool no_proxy) {
+    bool no_proxy,
+    net::ProxyConfigService* proxy_config_service_ptr) {
   // Make sure to stop any existing IO thread since it may be using the
   // current request context.
   Shutdown();
@@ -1040,7 +1045,7 @@ void SimpleResourceLoaderBridge::Init(
   DCHECK(!g_io_thread);
 
   g_request_context_params = new TestShellRequestContextParams(
-      cache_path, cache_mode, no_proxy);
+      cache_path, cache_mode, no_proxy, proxy_config_service_ptr);
 }
 
 // static
