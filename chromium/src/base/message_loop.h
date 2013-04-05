@@ -363,6 +363,15 @@ class BASE_EXPORT MessageLoop : public base::MessagePump::Delegate {
 #endif
   }
 
+  // Expose the DoWork methods publicly for Blpwtk
+  bool Blpwtk_DoWork() { return DoWork(); }
+  bool Blpwtk_DoDelayedWork(base::TimeTicks* next_delayed_work_time)
+  {
+      return DoDelayedWork(next_delayed_work_time);
+  }
+  bool Blpwtk_DoIdleWork() { return DoIdleWork(); }
+
+
   // When we go into high resolution timer mode, we will stay in hi-res mode
   // for at least 1s.
   static const int kHighResolutionTimerModeLeaseTimeMs = 1000;
